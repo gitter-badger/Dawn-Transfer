@@ -2,6 +2,7 @@ const aesjs = require('aes-js');
 const fs = require('fs');
 const util = require('util');
 const minimist = require('minimist');
+const Buffer = require('buffer/').Buffer;
 
 // An example 128-bit key (16 bytes * 8 bits/byte = 128 bits)
 const key = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
@@ -43,22 +44,41 @@ function decrypt(encryptedHex) {
 }
 
 async function getFile(filename) {
-  return readFile(filename);
+  const fileBuffer = await readFile(filename);
+  // const buffer = Buffer.from(fileBuffer);
+  // console.log(buffer, typeof buffer);
+  return fileBuffer;
 }
 
 async function main() {
   // Get args from input
   const argv = require('minimist')(process.argv.slice(2));
-  if (!argv.f) throw new Error('Supply filepath with flag -f');
 
+  // Handle incorrect args
+  try {
+    if (!argv.f) throw new Error('Supply filepath with flag -f');
+  } catch (err) {
+    console.log(err.message);
+    return;
+  }
+
+  // Get File
   const data = await getFile(argv.f);
-  const text = new Buffer(
-    'Text may be any length you wish, no padding is required. '
-  );
+  try {
+    if (!data) throw new Error('Couldn"t get data');
+  } catch (err) {
+    console.log(err.message);
+    return;
+  }
+
+  console.log(data, typeof data);
+
+  // Encrypt data
   const encryptedHex = encrypt(data);
   console.log('ENCRYPTED: ', encryptedHex);
 
+  // Decrypt data
   const decryptedData = decrypt(encryptedHex);
-  console.log('DECRYPTED: ', decryptedData);
+  console.log('DECRYPTED: ', decryptedData, typeof decryptedData);
 }
 main();
