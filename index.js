@@ -13,11 +13,18 @@ const readFile = util.promisify(fs.readFile);
 // In practice, generate a new key every time.
 const key = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 
+var inputBytes;
+var outputBytes;
+var inputHex;
+var outputHex;
+
 // encrypt: Encrypts ArrayBuffer with AES CTR. returns cipher Uint8Array
 function encrypt(buffer) {
   // Convert data to bytes
   const dataBytes = aesjs.utils.utf8.toBytes(buffer);
-  // console.log('DATA BYTES', dataBytes, typeof dataBytes);
+  // console.log('DATA BYTES', dataBytes.slice(0, 20), typeof dataBytes);
+
+  inputBytes = dataBytes;
 
   // The counter is optional, and if omitted will begin at 1
   const aesCtr = new aesjs.ModeOfOperation.ctr(key, new aesjs.Counter(5));
@@ -33,6 +40,8 @@ function decrypt(encryptedBytes) {
   const aesCtr = new aesjs.ModeOfOperation.ctr(key, new aesjs.Counter(5));
   const decryptedBytes = aesCtr.decrypt(encryptedBytes);
 
+  outputBytes = decryptedBytes;
+
   // Convert our bytes back into text
   const decryptedData = aesjs.utils.utf8.fromBytes(decryptedBytes);
 
@@ -41,8 +50,9 @@ function decrypt(encryptedBytes) {
 
 // getFile: Reads file from filepath and outputs as ArrayBuffer
 async function getFile(filename) {
-  const fileBuffer = await readFile(filename);
-  return fileBuffer;
+  const dataFile = await readFile(filename);
+  dataBase64 = dataFile.toString('base64');
+  return dataBase64;
 }
 
 // putFile: Reads binary from ArrayBuffer and outputs as file.
@@ -69,6 +79,20 @@ function getFilePath() {
   }
 }
 
+function diffArray(arr1, arr2) {
+  var newArr = [];
+
+  arr1.map(function(val) {
+    arr2.indexOf(val) < 0 ? newArr.push(val) : '';
+  });
+
+  arr2.map(function(val) {
+    arr1.indexOf(val) < 0 ? newArr.push(val) : '';
+  });
+
+  return newArr;
+}
+
 // Main loop
 async function main() {
   const filePath = getFilePath();
@@ -76,35 +100,47 @@ async function main() {
 
   // Get File
   const inputData = await getFile(filePath);
-
-  // Error handling for invalid input file
-  try {
-    if (!inputData) throw new Error('Couldn"t get data');
-  } catch (err) {
-    console.log(err.message);
-    return;
-  }
+  console.log('INPUT: ', inputData, typeof inputData);
 
   // Encrypt data
   const encryptedBytes = encrypt(inputData);
-  // console.log('ENCRYPTED: ', encryptedBytes, typeof encryptedBytes);
+  console.log('ENCRYPTED: ', /* encryptedBytes,*/ typeof encryptedBytes);
 
   // Decrypt data
   const decryptedData = decrypt(encryptedBytes);
-  // console.log('DECRYPTED: ', decryptedData, typeof decryptedData);
+  console.log('DECRYPTED: ', /* decryptedData,*/ typeof decryptedData);
 
   // Reconvert to ArrayBuffer
   let outputData = toBuffer(decryptedData);
 
   // Log Input & Output data (ArrayBuffer)
-  console.log('INPUT BUFFER: ', inputData, typeof inputData);
-  console.log('OUTPUT BUFFER: ', outputData, typeof outputData);
+  // console.log('INPUT BUFFER: ', inputData, typeof inputBytes);
+  // console.log('OUTPUT BUFFER: ', outputData, typeof outputBytes);
 
-  // Check Input/Output match
-  console.log(inputData == outputData ? 'MATCH' : 'NO MATCH');
+  // Check Input/Output match for byte array !!! Issue here
+  console.log(
+    inputBytes.slice(0, 1) === outputBytes.slice(0, 1)
+      ? 'BYTES MATCH'
+      : 'BYTES NO MATCH' //,
+    // '\nDiff: ',
+    // diffArray(inputBytes, outputBytes), //no difference but there is still an issue
+    // '\ninputBytes[0,10]: ',
+    // util.inspect(inputBytes.slice(0, 10), false, null, true),
+    // '\noutputBytes[0,10]: ',
+    // util.inspect(outputBytes.slice(0, 10), false, null, true)
+  );
+
+  // Check Input/Output match for data buffer.
+  console.log(
+    inputData.slice(0, 1) == outputData.slice(0, 1)
+      ? 'BUFFER MATCH'
+      : 'BUFFER NO MATCH' //,
+    // inputData,
+    // outputData
+  );
 
   // Output file
-  outputFile(inputData, fileExt); //Outputting input buffer works
-  // outputFile(outputData, fileExt); //TODO: Outputting output buffer doesn't work.
+  // outputFile(inputData, fileExt); //Outputting input buffer works
+  outputFile(outputData, fileExt); //TODO: Outputting output buffer doesn't work.
 }
 main();
