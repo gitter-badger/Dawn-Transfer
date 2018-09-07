@@ -2,145 +2,90 @@ const fs = require('fs');
 const util = require('util');
 const path = require('path');
 const minimist = require('minimist'); //extract args
-const aesjs = require('aes-js'); //encryption
-const Buffer = require('buffer/').Buffer; //buffer utils
-const toBuffer = require('typedarray-to-buffer');
+const CryptoJS = require('crypto-js');
+
+const key = 'SECRET_KEY',
+  iv = '9De0DgMTCDFGNokdEEial'; // You must dynamically create
 
 // Convert fs.readFile into Promise version of same
 const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
 
-// An example 128-bit key (16 bytes * 8 bits/byte = 128 bits)
-// In practice, generate a new key every time.
-const key = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+var inputBuffer;
+var inputBuffer64;
 
-var inputBytes;
-var outputBytes;
-var inputHex;
-var outputHex;
+const encrypt = dataBuffer => {
+  const dataBase64 = dataBuffer.toString('base64');
+  const encryptFile = CryptoJS.AES.encrypt(dataBase64, key, { iv: iv });
+  const encryptedBuffer = new Buffer(encryptFile.toString(), 'base64');
 
-// encrypt: Encrypts ArrayBuffer with AES CTR. returns cipher Uint8Array
-function encrypt(buffer) {
-  // Convert data to bytes
-  const dataBytes = aesjs.utils.utf8.toBytes(buffer);
-  // console.log('DATA BYTES', dataBytes.slice(0, 20), typeof dataBytes);
+  inputBuffer = dataBuffer;
+  inputBuffer64 = dataBase64;
 
-  inputBytes = dataBytes;
+  return encryptedBuffer;
+};
 
-  // The counter is optional, and if omitted will begin at 1
-  const aesCtr = new aesjs.ModeOfOperation.ctr(key, new aesjs.Counter(5));
-  const encryptedBytes = aesCtr.encrypt(dataBytes);
+const decrypt = encryptedBuffer => {
+  const decryptFile = CryptoJS.AES.decrypt(
+    encryptedBuffer.toString('base64'),
+    key,
+    { iv }
+  );
+  return decryptFile.toString(CryptoJS.enc.Utf8);
+};
 
-  return encryptedBytes;
-}
-
-// encrypt: decrypts cipher Uint8Array. returns decrypted Uint8Array
-function decrypt(encryptedBytes) {
-  // The counter mode of operation maintains internal state, so to
-  // decrypt a new instance must be instantiated.
-  const aesCtr = new aesjs.ModeOfOperation.ctr(key, new aesjs.Counter(5));
-  const decryptedBytes = aesCtr.decrypt(encryptedBytes);
-
-  outputBytes = decryptedBytes;
-
-  // Convert our bytes back into text
-  const decryptedData = aesjs.utils.utf8.fromBytes(decryptedBytes);
-
-  return decryptedData;
-}
-
-// getFile: Reads file from filepath and outputs as ArrayBuffer
-async function getFile(filename) {
-  const dataFile = await readFile(filename);
-  dataBase64 = dataFile.toString('base64');
-  return dataBase64;
-}
-
-// putFile: Reads binary from ArrayBuffer and outputs as file.
-async function outputFile(data, fileExt) {
-  fs.writeFile(`out/out${fileExt}`, data, function(err) {
-    if (err) {
-      return console.log(err);
-    }
-    console.log('The file was saved!');
-  });
-}
-
-function getFilePath() {
+const getFilePath = () => {
   // Get args from input using minimist
   const argv = require('minimist')(process.argv.slice(2));
+  const filePath = argv.f;
+  const fileType = path.extname(filePath);
+  return { filePath, fileType };
+};
 
-  // Handle incorrect args
-  try {
-    if (!argv.f) throw new Error('Supply filepath with flag -f');
-    return argv.f;
-  } catch (err) {
-    console.log(err.message);
-    return;
-  }
-}
+const readFileAsync = async filePath => {
+  return await readFile(filePath);
+};
 
-function diffArray(arr1, arr2) {
-  var newArr = [];
-
-  arr1.map(function(val) {
-    arr2.indexOf(val) < 0 ? newArr.push(val) : '';
-  });
-
-  arr2.map(function(val) {
-    arr1.indexOf(val) < 0 ? newArr.push(val) : '';
-  });
-
-  return newArr;
-}
+// outputFile: Outputs unencrypted file.
+const outputFileAsync = (data, fileExt) => {
+  writeFile(`out/unencrypted${fileExt}`, data)
+    .then(() => console.log('The file was saved!'))
+    .catch(error => console.log(error));
+};
 
 // Main loop
 async function main() {
-  const filePath = getFilePath();
-  const fileExt = path.extname(filePath);
+  // Get Filepath / Filetype
+  const { filePath, fileType } = getFilePath();
 
-  // Get File
-  const inputData = await getFile(filePath);
-  console.log('INPUT: ', inputData, typeof inputData);
+  // Read data as Buffer from filepath
+  const dataBuffer = await readFileAsync(filePath);
 
   // Encrypt data
-  const encryptedBytes = encrypt(inputData);
-  console.log('ENCRYPTED: ', /* encryptedBytes,*/ typeof encryptedBytes);
+  const encrypted = encrypt(dataBuffer);
 
-  // Decrypt data
-  const decryptedData = decrypt(encryptedBytes);
-  console.log('DECRYPTED: ', /* decryptedData,*/ typeof decryptedData);
+  // Decrypt Data
+  const decrypted = decrypt(encrypted);
 
-  // Reconvert to ArrayBuffer
-  let outputData = toBuffer(decryptedData);
+  // Convert decrypted data to Buffer
+  const outputBuffer = new Buffer(decrypted.toString(), 'base64');
 
-  // Log Input & Output data (ArrayBuffer)
-  // console.log('INPUT BUFFER: ', inputData, typeof inputBytes);
-  // console.log('OUTPUT BUFFER: ', outputData, typeof outputBytes);
+  // Write file to filesystem
+  outputFileAsync(outputBuffer, fileType);
 
-  // Check Input/Output match for byte array !!! Issue here
-  console.log(
-    inputBytes.slice(0, 1) === outputBytes.slice(0, 1)
-      ? 'BYTES MATCH'
-      : 'BYTES NO MATCH' //,
-    // '\nDiff: ',
-    // diffArray(inputBytes, outputBytes), //no difference but there is still an issue
-    // '\ninputBytes[0,10]: ',
-    // util.inspect(inputBytes.slice(0, 10), false, null, true),
-    // '\noutputBytes[0,10]: ',
-    // util.inspect(outputBytes.slice(0, 10), false, null, true)
-  );
+  // ~~~ Logging ~~~ //
+  // Log Pre-Encryption data
+  console.log('PRE-ENCRYPT BUFFER: ', inputBuffer, typeof inputBuffer);
+  // console.log('PRE-ENCRYPT BUFFER BASE 64: ', inputBuffer64, typeof inputBuffer64);
 
-  // Check Input/Output match for data buffer.
-  console.log(
-    inputData.slice(0, 1) == outputData.slice(0, 1)
-      ? 'BUFFER MATCH'
-      : 'BUFFER NO MATCH' //,
-    // inputData,
-    // outputData
-  );
+  // Log Encrypted data
+  // console.log('ENCRYPTED BUFFER: ', encrypted, typeof encrypted);
 
-  // Output file
-  // outputFile(inputData, fileExt); //Outputting input buffer works
-  outputFile(outputData, fileExt); //TODO: Outputting output buffer doesn't work.
+  // Log Post-Decryption data
+  // console.log('DECRYPTED BUFFER BASE 64: ', decrypted, typeof decrypted);
+  console.log('DECRYPTED BUFFER: ', outputBuffer, typeof outputBuffer);
+  console.log('BASE64 MATCH: ', inputBuffer64 === decrypted);
+  console.log('BUFFER MATCH: ', inputBuffer === outputBuffer);
+  // ~~~ End Logging ~~~ //
 }
 main();
