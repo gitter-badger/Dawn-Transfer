@@ -12,7 +12,7 @@ body,
 h1,
 h2,
 h3 {
-  font-family: 'Oswald', 'Arial Narrow', sans-serif;
+  font-family: 'Raleway', 'Arial Narrow', sans-serif;
 }
 
 code {
@@ -49,6 +49,7 @@ ul {
 ul li:not(:last-child) {
   margin-bottom: 15px;
 }
+
 /* UPLOAD PAGE*/
 
 .split {
@@ -108,10 +109,13 @@ ul li:not(:last-child) {
   /* border-radius: 50%; */
 }
 
-/* .dropzone {
-  width: 200;
-  height: 200;
-} */
+section {
+  display: flex;
+}
+
+aside {
+  width: 50%;
+}
 
 /* NAVBAR */
 

@@ -3,8 +3,23 @@ import Dropzone from 'react-dropzone';
 import node from '../../util/ipfs.js';
 import default_preview from './file.png';
 
+// Max File Upload Size
 const fileMaxSize = 9 * 1000000;
-const ipfsURL = 'https://ipfs.io/ipfs/';
+
+// Dropzone Styles
+const style = {
+  width: 400,
+  height: 400,
+  borderWidth: 2,
+  borderColor: '#eceff4',
+  borderStyle: 'dashed',
+  borderRadius: 5
+};
+const activeStyle = {
+  borderStyle: 'solid',
+  borderColor: '#D8DEE9',
+  backgroundColor: '#8AC0CF'
+};
 
 class UploadPage extends Component {
   constructor(props) {
@@ -21,14 +36,13 @@ class UploadPage extends Component {
   }
 
   handleOnDrop = (accepted, rejected, links) => {
-    // console.log('Accepted: ', accepted[0]);
-    // console.log('Rejected: ', rejected);
-    // Get file attributes
+    // Handle file rejection
     if (rejected.length !== 0) {
       let errors = [];
       errors.push('File Rejected: ', rejected[0].name);
       return this.setState({ errors });
     }
+    // Handle file acceptance
     const file = accepted[0];
     const fileName = file.name;
     const mimeType = file.type;
@@ -44,8 +58,8 @@ class UploadPage extends Component {
     };
   };
 
+  // Add file to IPFS
   addFile = async (buffer, fileName) => {
-    // ipfs add
     const filesAdded = await node.files.add({
       path: fileName,
       content: buffer
@@ -58,7 +72,7 @@ class UploadPage extends Component {
   };
 
   render() {
-    // Set content preview
+    // Set Content Preview
     let contentPreview;
     switch (this.state.mimeType.split('/')[0]) {
       case 'image':
@@ -66,7 +80,7 @@ class UploadPage extends Component {
         break;
       case 'video':
         contentPreview = (
-          <video muted autoplay controls src={this.state.filePreview}>
+          <video muted controls src={this.state.filePreview}>
             Sorry, your browser doesn't support embedded videos.
           </video>
         );
@@ -74,10 +88,12 @@ class UploadPage extends Component {
       default:
         contentPreview = <img src={default_preview} alt="default_image" />;
         break;
+      // End Content Preview
     }
     return (
       <div className="container">
         <div className="row">
+          {/* Left Half of Page*/}
           <div className="split left">
             <div className="centered">
               <h1>Upload</h1>
@@ -85,9 +101,17 @@ class UploadPage extends Component {
                 onDrop={this.handleOnDrop}
                 maxSize={fileMaxSize}
                 multiple={false}
+                style={style}
+                activeStyle={activeStyle}
               >
-                {this.state.filePath ? contentPreview : null}
-                {this.state.filePath ? this.state.filePath : 'Drop File here'}
+                <div className="centered">
+                  {this.state.filePath ? contentPreview : null}
+                  <p>
+                    {this.state.filePath
+                      ? this.state.filePath
+                      : 'Drop File here'}
+                  </p>
+                </div>
               </Dropzone>
               <br />
               <p className="errors">
@@ -95,6 +119,8 @@ class UploadPage extends Component {
               </p>
             </div>
           </div>
+
+          {/* Right Half of Page*/}
           <div className="split right">
             <div className="centered">
               <p>File hash: {this.state.fileHash}</p>
