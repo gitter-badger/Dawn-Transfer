@@ -1,7 +1,7 @@
 /* PAGE */
 
 body,
-.pure-g [class*=pure-u] {
+.pure-g [class*='pure-u'] {
   font-family: 'Open Sans', sans-serif;
 }
 
@@ -9,13 +9,15 @@ body,
   text-align: center;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: 'Oswald', 'Arial Narrow', sans-serif;
 }
 
 code {
-  padding: .25rem;
-  margin: 0 .25rem;
+  padding: 0.25rem;
+  margin: 0 0.25rem;
   background: #eee;
 }
 
@@ -35,7 +37,7 @@ code {
   background-color: #233e5e;
 }
 
-.pure-form input[type="text"]:focus {
+.pure-form input[type='text']:focus {
   border-color: #0c1a2b;
 }
 
@@ -47,6 +49,69 @@ ul {
 ul li:not(:last-child) {
   margin-bottom: 15px;
 }
+/* UPLOAD PAGE*/
+
+.split {
+  height: 100%;
+  width: 50%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+/* Control the left side */
+.left {
+  left: 0;
+  background-color: #4c5669;
+}
+
+/* Control the right side */
+.right {
+  right: 0;
+  background-color: #2e3440;
+}
+
+/* If you want the content centered horizontally and vertically */
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+/* Style the image inside the centered container, if needed */
+.centered p {
+  color: #d8dee9;
+}
+
+/* Style the image inside the centered container, if needed */
+.centered .errors {
+  color: #bd626b;
+}
+
+.centered h1 {
+  color: #eceff4;
+}
+
+/* Style the image inside the centered container, if needed */
+.centered img {
+  width: 150px;
+  /* border-radius: 50%; */
+}
+
+.centered video {
+  width: 150px;
+
+  /* border-radius: 50%; */
+}
+
+/* .dropzone {
+  width: 200;
+  height: 200;
+} */
 
 /* NAVBAR */
 
@@ -86,7 +151,7 @@ ul li:not(:last-child) {
 .loading-screen {
   opacity: 1;
   visibility: visible;
-  transition: all .25s ease-in-out;
+  transition: all 0.25s ease-in-out;
 }
 
 .loading-screen.loaded {
@@ -103,7 +168,7 @@ ul li:not(:last-child) {
 /* ALERTS */
 
 .alert {
-  padding: .5rem;
+  padding: 0.5rem;
   color: darkgreen;
   background: darkseagreen;
   border: 1px solid darkgreen;
