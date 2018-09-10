@@ -1,22 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Router, Route } from 'react-router';
-import { DrizzleProvider } from 'drizzle-react';
-
-// Layouts
+import './index.css';
 import App from './App';
-import { LoadingContainer } from 'drizzle-react-components';
-
-import { history, store } from './store';
-import drizzleOptions from './drizzleOptions';
+import registerServiceWorker from './registerServiceWorker';
+import { Web3Provider } from 'react-web3';
 
 ReactDOM.render(
-  <DrizzleProvider options={drizzleOptions} store={store}>
-    <LoadingContainer>
-      <Router history={history} store={store}>
-        <Route exact path="/" component={App} />
-      </Router>
-    </LoadingContainer>
-  </DrizzleProvider>,
+  <Web3Provider>
+    <App />
+  </Web3Provider>,
   document.getElementById('root')
 );
+registerServiceWorker();
