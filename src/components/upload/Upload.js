@@ -3,6 +3,9 @@ import Dropzone from 'react-dropzone';
 import node from '../../util/ipfs';
 import default_preview from '../../img/file.png';
 
+// Encryption
+import { encrypt } from '../../util/encrypt';
+
 // Max File Upload Size
 const fileMaxSize = 9 * 1000000;
 
@@ -54,7 +57,11 @@ class UploadPage extends Component {
     reader.readAsArrayBuffer(file);
     reader.onloadend = async () => {
       const fileBuffer = Buffer.from(reader.result);
-      await this.addFile(fileBuffer, fileName);
+      const encryptedBuffer = encrypt(fileBuffer);
+      console.log('File Buffer: ', fileBuffer);
+      console.log('Encrypted Buffer: ', encryptedBuffer);
+      await this.addFile(encryptedBuffer, fileName);
+      // await this.addFile(fileBuffer, fileName);
     };
   };
 
@@ -91,42 +98,33 @@ class UploadPage extends Component {
       // End Content Preview
     }
     return (
-      <div className="container">
-        <div className="row">
-          {/* Left Half of Page*/}
-          <div className="split left">
-            <div className="centered">
-              <h1>Upload</h1>
-              <Dropzone
-                onDrop={this.handleOnDrop}
-                maxSize={fileMaxSize}
-                multiple={false}
-                style={style}
-                activeStyle={activeStyle}
-              >
-                <div className="centered">
-                  {this.state.filePath ? contentPreview : null}
-                  <p>
-                    {this.state.filePath
-                      ? this.state.filePath
-                      : 'Drop File here'}
-                  </p>
-                </div>
-              </Dropzone>
-              <br />
-              <p className="errors">
-                {this.state.errors ? this.state.errors.map(e => e) : null}
-              </p>
-            </div>
+      <div>
+        <h1>Upload</h1>
+        <Dropzone
+          onDrop={this.handleOnDrop}
+          maxSize={fileMaxSize}
+          multiple={false}
+          style={style}
+          activeStyle={activeStyle}
+        >
+          <div className="centered">
+            {this.state.filePath ? contentPreview : null}
+            <p>
+              {this.state.filePath ? this.state.filePath : 'Drop File here'}
+            </p>
           </div>
-
-          {/* Right Half of Page*/}
-          <div className="split right">
-            <div className="centered">
-              <p>File hash: {this.state.fileHash}</p>
-              <p>File path: {this.state.filePath}</p>
+        </Dropzone>
+        <br />
+        <p className="errors">
+          {this.state.errors ? this.state.errors.map(e => e) : null}
+        </p>
+        <div className="fileData">
+          {this.state.fileHash && this.state.filePath ? (
+            <div>
+              <p>Encrypted file hash: {this.state.fileHash}</p>
+              <p>File name: {this.state.filePath}</p>
             </div>
-          </div>
+          ) : null}
         </div>
       </div>
     );
