@@ -10,6 +10,9 @@ import axios from 'axios';
 // File Download
 import fileDownload from 'js-file-download';
 
+// Whisper
+import Whisper from '../whisper/Whisper';
+
 const key = 'SECRET_KEY',
   iv = '9De0DgMTCDFGNokdEEial'; // You must dynamically create
 
@@ -103,6 +106,8 @@ class Decrypt extends React.Component {
           />
         </form>
         {this.state.contentLoaded ? <p>File Loaded!</p> : null}
+        <br />
+        <Whisper />
       </div>
     );
   }
