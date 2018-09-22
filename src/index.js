@@ -6,9 +6,9 @@ import registerServiceWorker from './registerServiceWorker';
 import { Web3Provider } from 'react-web3';
 
 ReactDOM.render(
-  <Web3Provider>
-    <App />
-  </Web3Provider>,
+  // <Web3Provider>
+    <App />,
+  // </Web3Provider>,
   document.getElementById('root')
 );
 registerServiceWorker();
