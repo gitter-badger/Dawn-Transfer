@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Web3 from 'web3';
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 let wsProvider = 'ws://50.2.39.116:8546';
-// const shh = new Shh(nodeProvider);
-
-var Web3 = require('web3');
 var web3 = new Web3(new Web3.providers.WebsocketProvider(wsProvider));
 var shh = web3.shh;
 
@@ -12,78 +13,163 @@ console.log(`Shh Ready: `);
 console.log('Shh Current Provider', shh.currentProvider);
 console.log('Shh Given Provider:', shh.givenProvider);
 
-const getWhisperDetails = async () => {
-  const info = await shh.getInfo();
-  const isListening = await shh.net.isListening();
-  const whispkey = await shh.newKeyPair();
-  const publicKey = await shh.getPublicKey(whispkey)
-  const privateKey = await shh.getPrivateKey(whispkey)
-  console.log('info', info);
-  console.log('isListening:', isListening);
-  console.log('whispkey:', whispkey);
-  console.log('publicKey:', publicKey);
-  console.log('privateKey:', privateKey);
-};
-
-getWhisperDetails();
-
 var identities = [];
 var subscription = null;
 
 class Whisper extends React.Component {
   constructor(props) {
     super(props);
-
     this.state = {
       hash: '',
-      peerName: 'peerId',
-      res: []
+      pubKey: '',
+      symKey: '',
+      whisper: {}
     };
+    this.getWhisperDetails = this.getWhisperDetails.bind(this);
     this.onChange = this.onChange.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
+    this.createListener = this.createListener.bind(this);
   }
+
+  notify = (msg, type) => {
+    switch (type) {
+      case 'success':
+        toast.success(msg, {
+          position: toast.POSITION.TOP_CENTER
+        });
+        break;
+      case 'error':
+        toast.error(msg, {
+          position: toast.POSITION.TOP_CENTER
+        });
+        break;
+      case 'info':
+        toast.info(msg, {
+          position: toast.POSITION.TOP_CENTER
+        });
+        break;
+      default:
+        toast(msg);
+    }
+  };
 
   onChange(e) {
     this.setState({ [e.target.name]: e.target.value });
   }
 
-  sendMessage = () => {
-    Promise.all([
-      shh.newSymKey().then(id => {
-        identities.push(id);
-      }),
-      shh.newKeyPair().then(id => {
-        identities.push(id);
-      })
-    ])
+  componentDidMount() {
+    this.getWhisperDetails()
       .then(() => {
-        // will receive also its own message send, below
-        subscription = shh
-          .subscribe('messages', {
-            symKeyID: identities[0],
-            topics: ['0xffaadd11']
-          })
-          .on('data', console.log);
+        console.log('Whisper:', this.state.whisper);
       })
       .then(() => {
-        shh
-          .post({
-            symKeyID: identities[0], // encrypts using the sym key ID
-            sig: identities[1], // signs the message using the keyPair ID
-            ttl: 10,
-            topic: '0xffaadd11',
-            payload: '0xffffffdddddd1122',
-            powTime: 3,
-            powTarget: 0.5
-          })
-          .then(h => console.log(`Message with hash ${h} was successfuly sent`))
-          .catch(err => console.log('Error: ', err));
+        this.createListener();
       });
+  }
+
+  componentWillReceiveProps(nextprops) {
+    this.setState({ hash: nextprops.hash });
+  }
+
+  createListener() {
+    // Generate new identity
+    console.log('creating listener...');
+    const topics = ['0xffaadd11'];
+    // will receive also its own message send, below
+    subscription = shh
+      .subscribe('messages', {
+        // symKeyID: this.state.whisper.symKeyId, //symKeyId
+        privateKeyID: this.state.whisper.keyPairId,
+        topics
+      })
+      .on('data', data => {
+        const payload = JSON.parse(web3.utils.hexToAscii(data.payload));
+        console.log('PAYLOAD:', payload);
+        this.notify(`Hash Received! Hash: ${payload.hash}`, 'info');
+      });
+  }
+
+  // Send a message
+  sendMessage = e => {
+    e.preventDefault();
+
+    // Construct payload
+    const payload = {
+      hash: this.state.hash,
+      iv: '9De0DgMTCDFGNokdEEial'
+    };
+
+    shh
+      .post({
+        // symKeyID: this.state.symKey, // encrypts using the sym key ID
+        pubKey: this.state.pubKey,
+        sig: this.state.whisper.keyPairId, // signs the message using the keyPair ID
+        ttl: 10,
+        topic: '0xffaadd11',
+        payload: web3.utils.asciiToHex(JSON.stringify(payload)),
+        powTime: 3,
+        powTarget: 0.5
+      })
+      .then(h => {
+        console.log(`Message with hash ${h} was successfuly sent`);
+        this.notify(`Message sent!`, 'success');
+      })
+      .catch(err => console.log('Error: ', err));
+  };
+
+  // Gets all details related to Whisper
+  getWhisperDetails = async () => {
+    // Get node info
+    const info = await shh.getInfo();
+    const isListening = await shh.net.isListening();
+    const peerCount = await shh.net.getPeerCount();
+    const netId = await shh.net.getId();
+
+    // Get Identity
+    const keyPairId = await shh.newKeyPair();
+    const symKeyId = await shh.newSymKey();
+    const publicKey = await shh.getPublicKey(keyPairId);
+    const privateKey = await shh.getPrivateKey(keyPairId);
+
+    // Set State
+    this.setState({
+      whisper: {
+        info,
+        isListening,
+        peerCount,
+        netId,
+        keyPairId,
+        symKeyId,
+        publicKey,
+        privateKey
+      }
+    });
   };
 
   render() {
+    let whisperDetails;
+    const { whisper } = this.state;
+    if (whisper.isListening) {
+      whisperDetails = (
+        <div className="whisper-details">
+          <p>Listening: true</p>
+          <p>Peer Count: {whisper.peerCount}</p>
+          <p>Peer ID: {whisper.keyPairId}</p>
+          <p>Public Key: {whisper.publicKey}</p>
+          <p>Sym Key: {whisper.symKeyId} </p>
+        </div>
+      );
+    } else {
+      whisperDetails = (
+        <div>
+          <p>Not Connected to whisper</p>
+        </div>
+      );
+    }
+
     return (
       <div>
+        <ToastContainer />
         <h1>Whisper</h1>
         <form onSubmit={this.sendMessage}>
           <input
@@ -96,22 +182,42 @@ class Whisper extends React.Component {
           <br />
           <input
             type="text"
-            name="peerId"
-            value={this.state.peerId}
+            name="pubKey"
+            value={this.state.pubKey}
             onChange={this.onChange}
-            placeholder="Peer ID..."
+            placeholder="Recipient's PubKey..."
+          />
+          <br />
+          <input
+            type="text"
+            name="symKey"
+            value={this.state.symkey}
+            onChange={this.onChange}
+            placeholder="Recipient's SymKey ID..."
           />
           <br />
           <input
             type="submit"
             className="btn btn-block btn-dark"
-            value="Send Hash"
+            value="Send Through Whisper"
           />
         </form>
+        <br />
+        <hr />
+        <div className="whisper-details">
+          <h2>Whisper Details</h2>
+          {whisperDetails}
+        </div>
         {/* {this.state.contentLoaded ? <p>Hash Sent!</p> : null} */}
       </div>
     );
   }
 }
+
+Whisper.propTypes = {
+  hash: PropTypes.string
+  // key: PropTypes.string
+  // TTL? //
+};
 
 export default Whisper;
