@@ -107,7 +107,8 @@ class Decrypt extends React.Component {
         </form>
         {this.state.contentLoaded ? <p>File Loaded!</p> : null}
         <br />
-        <Whisper />
+        <hr />
+        <Whisper hash={this.state.hash} />
       </div>
     );
   }
