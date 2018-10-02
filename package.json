@@ -5,14 +5,14 @@
   "dependencies": {
     "axios": "^0.18.0",
     "crypto-js": "^3.1.9-1",
-    "ipfs": "^0.31.7",
+    "ipfs": "^0.32.3",
     "js-file-download": "^0.4.1",
     "peer-id": "^0.11.0",
     "react": "^16.5.0",
     "react-dom": "^16.5.0",
     "react-dropzone": "^5.1.0",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "1.1.5",
+    "react-scripts": "2.0.3",
     "react-toastify": "^4.3.2",
     "react-web3": "^0.4.5",
     "web3": "^1.0.0-beta.36"
@@ -25,5 +25,12 @@
   },
   "devDependencies": {
     "prettier": "1.14.2"
-  }
+  },
+  "homepage": "./",
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }
