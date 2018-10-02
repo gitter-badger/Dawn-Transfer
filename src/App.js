@@ -12,19 +12,14 @@ import generateContainer from './components/constants/generateContainer';
 
 import './App.css';
 
-const MainContainer = generateContainer(Upload, Decrypt);
-
 class App extends Component {
   render() {
     return (
       <Router>
         <div className="App">
           <Header />
-          <Route
-            exact
-            path="/"
-            component={generateContainer(Upload, Decrypt)}
-          />
+          <Upload />
+          <Decrypt />
         </div>
       </Router>
     );
