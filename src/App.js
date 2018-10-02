@@ -8,7 +8,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Header from './components/constants/Header';
 import Upload from './components/upload/Upload';
 import Decrypt from './components/decrypt/Decrypt';
-import generateContainer from './components/constants/generateContainer';
+import Main from './components/main/Main';
 
 import './App.css';
 
@@ -18,8 +18,7 @@ class App extends Component {
       <Router>
         <div className="App">
           <Header />
-          <Upload />
-          <Decrypt />
+          <Main />
         </div>
       </Router>
     );
