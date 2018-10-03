@@ -6,20 +6,13 @@ stages:
 - test
 - build
 - deploy
-test_dummy:
-  image: node:8.11.4
-  stage: test
-  before_script:
-  - npm install
-  script:
-  - npm run test
 build_site:
   image: node:8.11.4
   stage: build
   before_script:
   - npm install
   script:
-  - npm run build
+  - CI=false npm run build
   artifacts:
     paths:
     - build
