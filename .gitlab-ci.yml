@@ -1,32 +1,36 @@
-image: node:8.11.4
-
 cache:
   paths:
   - node_modules/
-
+  - .ipfs/
 stages:
-  - test
-  - build
-
+- test
+- build
+- deploy
 test_dummy:
+  image: node:8.11.4
   stage: test
+  before_script:
+  - npm install
   script:
-   - npm install
-   # - npm test
-  tags:
-    - docker
-
-deploy_ipfs:
+  - npm run test
+build_site:
+  image: node:8.11.4
   stage: build
+  before_script:
+  - npm install
+  script:
+  - npm run build
   artifacts:
     paths:
-      - public
+    - build
+    expire_in: 20 minutes
+deploy_ipfs:
+  image: jbenet/go-ipfs:master
+  stage: deploy
+  before_script:
+  - ipfs init
   script:
-    - npm install
-    - npm install ipfs --global
-    - npm run build
-    - ipfs add -r public/
-  tags:
-    - docker
+  - ipfs add -r build/
+  - ipfs add --only-hash -r build | tail -n 1 | awk '{ print $2 }' | ipfs name publish
   only:
-    - production
+  - master
