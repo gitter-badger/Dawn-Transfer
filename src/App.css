@@ -222,3 +222,106 @@ aside {
   background: darkseagreen;
   border: 1px solid darkgreen;
 }
+
+/* APP CARD */
+.app-card {
+  overflow: hidden;
+  position: relative;
+  background: #ffffff;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+@media (min-width: 768px) {
+  .app-card {
+    width: 350px;
+  }
+}
+.app-card .app-card-header {
+  background: #f3f7ff;
+}
+.app-card .app-card-header .app-card-header-inner {
+  padding: 10px 20px;
+}
+.app-card .app-card-content .app-card-content-inner {
+  padding: 20px;
+}
+.app-card.app-card-uploading .app-card-content .app-card-content-inner,
+.app-card.app-card-upload-sent .app-card-content .app-card-content-inner {
+  padding: 40px;
+}
+
+.app-file-select-zone {
+  width: 100%;
+  display: block;
+  text-align: center;
+  padding: 10px 0 0 0;
+}
+.app-file-select-zone label {
+  display: block;
+  width: 100%;
+}
+.app-file-select-zone label input {
+  position: fixed;
+  top: -9999px;
+}
+.app-file-select-zone .app-upload-description {
+  font-size: 12px;
+  display: block;
+}
+.app-file-select-zone .app-upload-icon {
+  display: inline-block;
+  margin-bottom: 10px;
+  width: 60px;
+  height: 30px;
+  border: 1px dashed #96a3bb;
+  position: relative;
+}
+.app-file-select-zone .app-upload-icon i {
+  position: absolute;
+  left: 10px;
+  top: -10px;
+  background: #f3f7ff;
+  font-size: 28px;
+}
+.app-file-select-zone.error .app-upload-icon {
+  border-color: #d0152e;
+}
+
+.app-form-item {
+  margin: 0 0 15px 0;
+}
+.app-form-item label {
+  text-transform: uppercase;
+  display: block;
+  font-weight: 400;
+  margin: 0 0 8px 0;
+}
+.app-form-item input[type='text'],
+.app-form-item input[type='email'],
+.app-form-item input[type='password'],
+.app-form-item textarea {
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  outline: 0 none;
+  padding: 8px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+.app-form-item input[type='text']:focus,
+.app-form-item input[type='text'] :active,
+.app-form-item input[type='email']:focus,
+.app-form-item input[type='email'] :active,
+.app-form-item input[type='password']:focus,
+.app-form-item input[type='password'] :active,
+.app-form-item textarea:focus,
+.app-form-item textarea :active {
+  outline: 0 none;
+}
+.app-form-item textarea {
+  min-height: 50px;
+}
+.app-form-item.error input {
+  color: #d0152e;
+}

@@ -1,10 +1,19 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
-import node from '../../util/ipfs';
+// import node from '../../util/ipfs';
 import default_preview from '../../img/file.png';
 
 // Encryption
 import { encrypt } from '../../util/encrypt';
+
+// Redux
+import { connect } from 'react-redux';
+import {
+  ipfsAddFile,
+  encryptFile,
+  onFileUploaded
+} from '../../actions/uploadActions';
 
 // Max File Upload Size
 const fileMaxSize = 9 * 1000000;
@@ -28,13 +37,9 @@ class UploadPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      filePath: '',
-      fileHash: '',
-      mimeType: '',
-      filePreview: '',
       errors: []
     };
-    this.addFile = this.addFile.bind(this);
+    // this.addFile = this.addFile.bind(this);
     this.handleOnDrop = this.handleOnDrop.bind(this);
   }
 
@@ -45,49 +50,52 @@ class UploadPage extends Component {
       errors.push('File Rejected: ', rejected[0].name);
       return this.setState({ errors });
     }
+
     // Handle file acceptance
     const file = accepted[0];
-    const fileName = file.name;
-    const mimeType = file.type;
-    const filePreview = file.preview;
-    this.setState({ mimeType, filePreview, errors: [] });
 
-    // Convert file from blob to buffer and ipfs add
+    // Create FileReader and read file
     const reader = new FileReader();
     reader.readAsArrayBuffer(file);
     reader.onloadend = async () => {
+      // Convert file from blob to buffer
       const fileBuffer = Buffer.from(reader.result);
-      const encryptedBuffer = encrypt(fileBuffer);
-      console.log('File Buffer: ', fileBuffer);
-      console.log('Encrypted Buffer: ', encryptedBuffer);
-      await this.addFile(encryptedBuffer, fileName);
-      // await this.addFile(fileBuffer, fileName);
+
+      // Log Upload File Success
+      await this.props.onFileUploaded(
+        file.name,
+        file.type,
+        file.preview,
+        fileBuffer
+      );
+
+      // Encrypt File
+      // await this.props.encryptFile(fileBuffer, file.name);
+      // const { encryptedBuffer, fileName } = this.props.upload.encryptedFile;
+      const { encryptedBuffer, fileName } = await this.props.encryptFile(
+        fileBuffer,
+        file.name
+      );
+
+      // IPFS Add File
+      await this.props.ipfsAddFile(encryptedBuffer, fileName);
     };
   };
 
-  // Add file to IPFS
-  addFile = async (buffer, fileName) => {
-    const filesAdded = await node.files.add({
-      path: fileName,
-      content: buffer
-    });
-    console.log('Added file:', filesAdded[0].path, filesAdded[0].hash);
-    this.setState({
-      filePath: filesAdded[0].path,
-      fileHash: filesAdded[0].hash
-    });
-  };
-
   render() {
+    // Get latest addedFile from props
+    const { ipfsAddedFile, uploadedFile } = this.props.upload;
     // Set Content Preview
     let contentPreview;
-    switch (this.state.mimeType.split('/')[0]) {
+    switch (uploadedFile.mimeType.split('/')[0]) {
       case 'image':
-        contentPreview = <img src={this.state.filePreview} alt="file_image" />;
+        contentPreview = (
+          <img src={uploadedFile.filePreview} alt="file_image" />
+        );
         break;
       case 'video':
         contentPreview = (
-          <video muted controls src={this.state.filePreview}>
+          <video muted controls src={uploadedFile.filePreview}>
             Sorry, your browser doesn't support embedded videos.
           </video>
         );
@@ -108,9 +116,11 @@ class UploadPage extends Component {
           activeStyle={activeStyle}
         >
           <div className="centered">
-            {this.state.filePath ? contentPreview : null}
+            {ipfsAddedFile.filePath ? contentPreview : null}
             <p>
-              {this.state.filePath ? this.state.filePath : 'Drop File here'}
+              {ipfsAddedFile.filePath
+                ? ipfsAddedFile.filePath
+                : 'Drop File here'}
             </p>
           </div>
         </Dropzone>
@@ -119,10 +129,10 @@ class UploadPage extends Component {
           {this.state.errors ? this.state.errors.map(e => e) : null}
         </p>
         <div className="fileData">
-          {this.state.fileHash && this.state.filePath ? (
+          {ipfsAddedFile.fileHash && ipfsAddedFile.filePath ? (
             <div>
-              <p>Encrypted file hash: {this.state.fileHash}</p>
-              <p>File name: {this.state.filePath}</p>
+              <p>Encrypted file hash: {ipfsAddedFile.fileHash}</p>
+              <p>File name: {ipfsAddedFile.filePath}</p>
             </div>
           ) : null}
         </div>
@@ -131,4 +141,21 @@ class UploadPage extends Component {
   }
 }
 
-export default UploadPage;
+UploadPage.propTypes = {
+  ipfsAddFile: PropTypes.func.isRequired,
+  encryptFile: PropTypes.func.isRequired,
+  upload: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+  upload: state.upload
+});
+
+export default connect(
+  mapStateToProps,
+  {
+    ipfsAddFile,
+    encryptFile,
+    onFileUploaded
+  }
+)(UploadPage);

@@ -1,34 +1,39 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Web3 from 'web3';
+import util from 'ethjs-util';
 
+// redux
+import { connect } from 'react-redux';
+import {
+  getWhisper,
+  sendMessage,
+  createListener,
+  setWhisper
+} from '../../actions/whisperActions';
+
+// Toasts
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-let wsProvider = 'ws://50.2.39.116:8546';
-var web3 = new Web3(new Web3.providers.WebsocketProvider(wsProvider));
-var shh = web3.shh;
-
-console.log(`Shh Ready: `);
-console.log('Shh Current Provider', shh.currentProvider);
-console.log('Shh Given Provider:', shh.givenProvider);
-
-var identities = [];
-var subscription = null;
+// Web3 whisper default provider
+const wsProvider = 'ws://50.2.39.116:8546';
+const topic1 = '1234';
+const topic2 = '5678';
 
 class Whisper extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      hash: '',
+      note: '',
       pubKey: '',
       symKey: '',
-      whisper: {}
+      topics: '', // subcribe to topics
+      topic: '' // sendTo topic
     };
-    this.getWhisperDetails = this.getWhisperDetails.bind(this);
     this.onChange = this.onChange.bind(this);
+    this.onSubmitNewSubscription = this.onSubmitNewSubscription.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
-    this.createListener = this.createListener.bind(this);
   }
 
   notify = (msg, type) => {
@@ -57,106 +62,94 @@ class Whisper extends React.Component {
     this.setState({ [e.target.name]: e.target.value });
   }
 
-  componentDidMount() {
-    this.getWhisperDetails()
-      .then(() => {
-        console.log('Whisper:', this.state.whisper);
-      })
-      .then(() => {
-        this.createListener();
-      });
+  async onSubmitNewSubscription(e) {
+    e.preventDefault();
+    const topics = this.state.topics.split(',').map(t => t.trim().slice(0, 4));
+    await this.createListener(topics);
   }
 
-  componentWillReceiveProps(nextprops) {
-    this.setState({ hash: nextprops.hash });
+  async componentDidMount() {
+    // Set Whisper using default provider
+    await this.props.setWhisper(wsProvider);
+    console.log('Set Whisper');
+
+    // Get web3.shh from props
+    const { shh } = this.props.whisper;
+
+    // Create a new Whisper Peer Identity
+    await this.props.getWhisper(shh);
+    console.log('New Whisper Peer Identity!');
+
+    // Set default values for component
+    console.log(this.props.whisper.details.publicKey);
+    this.setState({
+      topic: '1234',
+      pubKey: this.props.whisper.details.publicKey
+    });
+
+    // Create default listener
+    await this.createListener([this.state.topic]);
   }
 
-  createListener() {
-    // Generate new identity
-    console.log('creating listener...');
-    const topics = ['0xffaadd11'];
-    // will receive also its own message send, below
-    subscription = shh
-      .subscribe('messages', {
-        // symKeyID: this.state.whisper.symKeyId, //symKeyId
-        privateKeyID: this.state.whisper.keyPairId,
-        topics
-      })
-      .on('data', data => {
-        const payload = JSON.parse(web3.utils.hexToAscii(data.payload));
-        console.log('PAYLOAD:', payload);
-        this.notify(`Hash Received! Hash: ${payload.hash}`, 'info');
-      });
-  }
+  createListener = async topics => {
+    // Convert ascii topics to hex
+    const topicsHex = topics.map(t => util.fromAscii(t));
+    console.log('topics hex:', topicsHex);
+    // Create opts for subscribe function
+    const opts = {
+      topics: topicsHex,
+      privateKeyID: this.props.whisper.details.keyPairId
+    };
+
+    // call shh.subscribe
+    await this.props.createListener(opts, this.props.whisper.shh);
+  };
 
   // Send a message
   sendMessage = e => {
     e.preventDefault();
 
+    const { ipfsAddedFile, encryptedFile } = this.props.upload;
+
     // Construct payload
     const payload = {
-      hash: this.state.hash,
-      iv: '9De0DgMTCDFGNokdEEial'
+      hash: ipfsAddedFile.fileHash,
+      path: ipfsAddedFile.filePath,
+      iv: encryptedFile.decryptionKey,
+      note: this.state.note
     };
 
-    shh
-      .post({
-        // symKeyID: this.state.symKey, // encrypts using the sym key ID
-        pubKey: this.state.pubKey,
-        sig: this.state.whisper.keyPairId, // signs the message using the keyPair ID
-        ttl: 10,
-        topic: '0xffaadd11',
-        payload: web3.utils.asciiToHex(JSON.stringify(payload)),
-        powTime: 3,
-        powTarget: 0.5
-      })
-      .then(h => {
-        console.log(`Message with hash ${h} was successfuly sent`);
-        this.notify(`Message sent!`, 'success');
-      })
-      .catch(err => console.log('Error: ', err));
-  };
+    if (payload.hash === '' || payload.path === '' || payload.iv === '') {
+      return alert('Upload a file before sending through whisper!');
+    }
 
-  // Gets all details related to Whisper
-  getWhisperDetails = async () => {
-    // Get node info
-    const info = await shh.getInfo();
-    const isListening = await shh.net.isListening();
-    const peerCount = await shh.net.getPeerCount();
-    const netId = await shh.net.getId();
+    // Set options
+    const opts = {
+      pubKey: this.state.pubKey,
+      sig: this.props.whisper.details.keyPairId, // signs the message using the keyPair ID
+      ttl: 10,
+      // topic: '0xffaadd11',
+      topic: util.fromAscii(this.state.topic),
+      payload: util.fromAscii(JSON.stringify(payload)),
+      powTime: 3,
+      powTarget: 0.5
+    };
 
-    // Get Identity
-    const keyPairId = await shh.newKeyPair();
-    const symKeyId = await shh.newSymKey();
-    const publicKey = await shh.getPublicKey(keyPairId);
-    const privateKey = await shh.getPrivateKey(keyPairId);
-
-    // Set State
-    this.setState({
-      whisper: {
-        info,
-        isListening,
-        peerCount,
-        netId,
-        keyPairId,
-        symKeyId,
-        publicKey,
-        privateKey
-      }
-    });
+    this.props.sendMessage(opts, this.props.whisper.shh);
   };
 
   render() {
-    let whisperDetails;
-    const { whisper } = this.state;
-    if (whisper.isListening) {
+    // Whisper Details
+    let whisperDetails, incomingMessages;
+    const { details } = this.props.whisper;
+    if (details.isListening) {
       whisperDetails = (
         <div className="whisper-details">
           <p>Listening: true</p>
-          <p>Peer Count: {whisper.peerCount}</p>
-          <p>Peer ID: {whisper.keyPairId}</p>
-          <p>Public Key: {whisper.publicKey}</p>
-          <p>Sym Key: {whisper.symKeyId} </p>
+          <p>Peer Count: {details.peerCount}</p>
+          <p>Peer ID: {details.keyPairId}</p>
+          <p>Public Key: {details.publicKey}</p>
+          <p>Sym Key: {details.symKeyId} </p>
         </div>
       );
     } else {
@@ -174,10 +167,10 @@ class Whisper extends React.Component {
         <form onSubmit={this.sendMessage}>
           <input
             type="text"
-            name="hash"
-            value={this.state.hash}
+            name="note"
+            value={this.state.note}
             onChange={this.onChange}
-            placeholder="File Hash..."
+            placeholder="Add a note..."
           />
           <br />
           <input
@@ -190,10 +183,10 @@ class Whisper extends React.Component {
           <br />
           <input
             type="text"
-            name="symKey"
-            value={this.state.symkey}
+            name="topic"
+            value={this.state.topic}
             onChange={this.onChange}
-            placeholder="Recipient's SymKey ID..."
+            placeholder="Topic to Post to..."
           />
           <br />
           <input
@@ -202,6 +195,24 @@ class Whisper extends React.Component {
             value="Send Through Whisper"
           />
         </form>
+
+        <h1>Add Subscription</h1>
+        <form onSubmit={this.onSubmitNewSubscription}>
+          <input
+            type="text"
+            name="topics"
+            value={this.state.topics}
+            onChange={this.onChange}
+            placeholder="Topics (Comma separated)..."
+          />
+          <br />
+          <input
+            type="submit"
+            className="btn btn-block btn-dark"
+            value="Create new Listener"
+          />
+        </form>
+
         <br />
         <hr />
         <div className="whisper-details">
@@ -215,9 +226,22 @@ class Whisper extends React.Component {
 }
 
 Whisper.propTypes = {
-  hash: PropTypes.string
-  // key: PropTypes.string
-  // TTL? //
+  hash: PropTypes.string,
+  whisper: PropTypes.object.isRequired,
+  upload: PropTypes.object.isRequired
 };
 
-export default Whisper;
+const mapStateToProps = state => ({
+  whisper: state.whisper,
+  upload: state.upload
+});
+
+export default connect(
+  mapStateToProps,
+  {
+    getWhisper,
+    setWhisper,
+    sendMessage,
+    createListener
+  }
+)(Whisper);

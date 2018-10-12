@@ -13,6 +13,10 @@ import fileDownload from 'js-file-download';
 // Whisper
 import Whisper from '../whisper/Whisper';
 
+// Redux
+import { connect } from 'react-redux';
+import { decryptFile } from '../../actions/downloadActions';
+
 const key = 'SECRET_KEY',
   iv = '9De0DgMTCDFGNokdEEial'; // You must dynamically create
 
@@ -52,12 +56,18 @@ class Decrypt extends React.Component {
   handleSubmit = async e => {
     e.preventDefault();
     const { hash, fileName } = this.state;
+
     const fileBuffer = await this.downloadAndDecryptFile(
       hash,
       fileName,
       key,
       iv
     );
+  };
+
+  handleMessageClick = async msg => {
+    const { hash, path, iv, note } = msg;
+    await this.downloadAndDecryptFile(hash, path, key, iv);
   };
 
   downloadFile = (data, fileName) => {
@@ -70,15 +80,34 @@ class Decrypt extends React.Component {
       const res = await this.getData(hash);
       this.setState({ contentLoaded: true, res });
       const file = res[0].content;
-      const decrypted = decrypt(file);
-      console.log('Decrypted: ', decrypted);
-      this.downloadFile(decrypted, fileName);
+
+      // Decrypt File
+      await this.props.decryptFile(file, iv, fileName);
+
+      // Trigger file download
+      const { decryptedBuffer, filename } = this.props.download.decrypted;
+      this.downloadFile(decryptedBuffer, fileName);
     } catch (err) {
       console.log(err.message);
     }
   };
 
   render() {
+    // Incoming Messages
+    let incomingMessages;
+    const messages = this.props.events.received_messages;
+    if (messages.length !== 0) {
+      incomingMessages = messages.map((msg, idx) => {
+        const { hash, path, iv, note } = msg;
+        return (
+          <button onClick={() => this.handleMessageClick(msg)}>
+            {note ? note : idx}
+          </button>
+        );
+      });
+    }
+    console.log(incomingMessages);
+
     return (
       <div>
         <h1>Decrypt</h1>
@@ -106,6 +135,10 @@ class Decrypt extends React.Component {
           />
         </form>
         {this.state.contentLoaded ? <p>File Loaded!</p> : null}
+        <div className="messages">
+          <h2>Messages</h2>
+          {incomingMessages ? incomingMessages : null}
+        </div>
         <br />
         <hr />
         <Whisper hash={this.state.hash} />
@@ -114,4 +147,22 @@ class Decrypt extends React.Component {
   }
 }
 
-export default Decrypt;
+Decrypt.propTypes = {
+  decryptFile: PropTypes.func.isRequired,
+  download: PropTypes.object.isRequired,
+  whisper: PropTypes.object.isRequired,
+  events: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+  download: state.download,
+  whisper: state.whisper,
+  events: state.events
+});
+
+export default connect(
+  mapStateToProps,
+  {
+    decryptFile
+  }
+)(Decrypt);
