@@ -46,12 +46,15 @@ export const getWhisper = shh => async dispatch => {
   return dispatch(getWhisperAction(whisper));
 };
 
-export const sendMessage = (opts, shh) => dispatch => {
+export const sendMessage = (opts, payload, shh) => dispatch => {
+  console.log('PAYLOAD 0:', payload);
+
   shh
     .post(opts)
     .then(h => {
       console.log(`Message with hash ${h} was successfuly sent`);
-      dispatch(sendMessageAction(h));
+      console.log('PAYLOAD:', payload);
+      dispatch(sendMessageAction(payload));
     })
     .catch(err => console.log('Error: ', err));
 };
@@ -82,10 +85,10 @@ export const createListener = (opts, shh) => dispatch => {
   );
 };
 
-const sendMessageAction = hash => {
+const sendMessageAction = payload => {
   return {
     type: SEND_WHISPER_MESSAGE,
-    payload: hash
+    payload
   };
 };
 

@@ -45,7 +45,7 @@ class Decrypt extends React.Component {
       const { content, name, path } = file;
       return { content, name, path };
     });
-    console.log('res:', res);
+    // console.log('res:', res);
     return res;
   };
 
@@ -95,6 +95,7 @@ class Decrypt extends React.Component {
   render() {
     // Incoming Messages
     let incomingMessages;
+
     const messages = this.props.events.received_messages;
     if (messages.length !== 0) {
       incomingMessages = messages.map((msg, idx) => {

@@ -70,5 +70,3 @@ typings/
 
 # Serverless directories
 .serverless
-
-yarn.lock

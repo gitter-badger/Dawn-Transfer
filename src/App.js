@@ -7,8 +7,6 @@ import store from './store';
 
 // Components
 import Header from './components/constants/Header';
-import Upload from './components/upload/Upload';
-import Decrypt from './components/decrypt/Decrypt';
 import Main from './components/main/Main';
 
 import './App.css';

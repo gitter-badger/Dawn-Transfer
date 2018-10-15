@@ -116,7 +116,7 @@ class Whisper extends React.Component {
       hash: ipfsAddedFile.fileHash,
       path: ipfsAddedFile.filePath,
       iv: encryptedFile.decryptionKey,
-      note: this.state.note
+      note: this.state.note ? this.state.note : ''
     };
 
     if (payload.hash === '' || payload.path === '' || payload.iv === '') {
@@ -135,7 +135,8 @@ class Whisper extends React.Component {
       powTarget: 0.5
     };
 
-    this.props.sendMessage(opts, this.props.whisper.shh);
+    console.log('PAYLOAD PRE', payload);
+    this.props.sendMessage(opts, payload, this.props.whisper.shh);
   };
 
   render() {
@@ -215,10 +216,6 @@ class Whisper extends React.Component {
 
         <br />
         <hr />
-        <div className="whisper-details">
-          <h2>Whisper Details</h2>
-          {whisperDetails}
-        </div>
         {/* {this.state.contentLoaded ? <p>Hash Sent!</p> : null} */}
       </div>
     );
