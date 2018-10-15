@@ -55,10 +55,9 @@ code {
 
 .container {
   box-sizing: border-box;
-  width: calc(100% - 60px);
-  max-width: 600px;
-  padding: 45px 20px;
-  margin: 0 auto;
+  width: 100%;
+  padding: 0 20px;
+  margin: 0;
 }
 
 .pure-button-primary {
@@ -733,12 +732,27 @@ aside {
   color: #d0152e;
 }
 
+/* Upload Card Header */
+.app-card-header p {
+  color: black;
+}
+
+.app-card-header span {
+  color: blue;
+  font-size: 10px;
+}
+
+.app-card-header:hover {
+  background-color: rgb(0, 0, 0, 0.1);
+}
+
 /* MAIN CONTAINER */
 .main-container,
 html,
 body {
   background-color: coral;
-  background-image: url('aurora.jpeg');
+  background-image: url('https://images.unsplash.com/photo-1507908708918-778587c9e563?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=c103c10901350e8778c41dfc521eff55&auto=format&fit=crop&w=1920&h=1080');
+  background-size: cover;
   background-color: #cccccc;
   height: 100%;
   margin: 0;
@@ -757,9 +771,10 @@ body {
 .flex-horizontal {
   background-color: transparent;
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: baseline;
+  flex-flow: row nowrap;
+  align-items: flex-start;
+  padding-top: 45px;
+  justify-content: space-between;
 }
 
 .flex-horizontal > * {
@@ -788,10 +803,32 @@ body {
  */
 
 /* Medium screens */
+@media all and (max-width: 600px) {
+  .flex-horizontal {
+    flex-direction: column;
+  }
+
+  .container {
+    margin: 0 auto;
+    margin-bottom: 20px;
+  }
+}
+
+/* Medium screens */
 @media all and (min-width: 600px) {
+  .flex-horizontal {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 85vw;
+  }
   /* We tell both sidebars to share a row */
-  .element {
-    flex: 1 auto 1 1;
+  .transfer {
+    flex: 0 1;
+    max-width: 600px;
+  }
+
+  .messages {
+    flex: 1;
   }
 }
 
@@ -800,9 +837,7 @@ body {
   /* We invert order of first sidebar and main
    * And tell the main element to take twice as much width as the other two sidebars 
    */
-  .flex-horizontal {
-    flex: 2 100%;
-  }
+
   .transfer {
     order: 1;
   }
