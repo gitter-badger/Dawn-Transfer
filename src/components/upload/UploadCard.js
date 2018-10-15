@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-
 import PropTypes from 'prop-types';
+
 import Dropzone from 'react-dropzone';
 import classNames from 'classnames';
 import _ from 'lodash';
@@ -21,24 +21,8 @@ import {
 } from '../../actions/uploadActions';
 import { sendMessage } from '../../actions/whisperActions';
 
-// DropZone Config
-// Max File Upload Size
-const fileMaxSize = 9 * 1000000;
-
-// Dropzone Styles
-const style = {
-	width: '100%',
-	height: 100,
-	borderWidth: 2,
-	borderColor: '#eceff4',
-	borderStyle: 'dashed',
-	borderRadius: 5
-};
-const activeStyle = {
-	borderStyle: 'solid',
-	borderColor: '#D8DEE9',
-	backgroundColor: '#8AC0CF'
-};
+// SubComponents
+import UploadCardHeader from './UploadCardHeader';
 
 class UploadCard extends Component {
 	constructor(props) {
@@ -63,49 +47,8 @@ class UploadCard extends Component {
 
 		this._onTextChange = this._onTextChange.bind(this);
 		this._onSubmit = this._onSubmit.bind(this);
-		this.handleOnDrop = this.handleOnDrop.bind(this);
 		this.sendMessage = this.sendMessage.bind(this);
 	}
-
-	handleOnDrop = (accepted, rejected, links) => {
-		// Handle file rejection
-		if (rejected.length !== 0) {
-			const { errors } = this.state;
-			errors.file = 'File Rejected: ' + rejected[0].name;
-			return this.setState({ errors });
-		}
-
-		// Handle file acceptance
-		const file = accepted[0];
-
-		// Create FileReader and read file
-		const reader = new FileReader();
-		reader.readAsArrayBuffer(file);
-		reader.onloadend = async () => {
-			// Convert file from blob to buffer
-			const fileBuffer = Buffer.from(reader.result);
-
-			// Log Upload File Success
-			await this.props.onFileUploaded(
-				file.name,
-				file.type,
-				file.preview,
-				fileBuffer
-			);
-
-			// Encrypt File
-			// await this.props.encryptFile(fileBuffer, file.name);
-			// const { encryptedBuffer, fileName } = this.props.upload.encryptedFile;
-			const { encryptedBuffer, fileName } = await this.props.encryptFile(
-				fileBuffer,
-				file.name
-			);
-
-			// IPFS Add File
-			await this.props.ipfsAddFile(encryptedBuffer, fileName);
-			this.setState({ errors: { file: '' } });
-		};
-	};
 
 	// Send a message
 	sendMessage = e => {
@@ -183,29 +126,7 @@ class UploadCard extends Component {
 
 		return (
 			<div className={'app-card'}>
-				<div className={'app-card-header'}>
-					<Dropzone
-						onDrop={this.handleOnDrop}
-						maxSize={fileMaxSize}
-						multiple={false}
-						style={style}
-						activeStyle={activeStyle}
-					>
-						<div className="centered">
-							{ipfsAddedFile.filePath ? contentPreview : null}
-							<p className="errors">
-								{this.state.errors.file
-									? this.state.errors.file
-									: null}
-							</p>
-							<p>
-								{ipfsAddedFile.filePath
-									? ipfsAddedFile.filePath
-									: 'Drop File here'}
-							</p>
-						</div>
-					</Dropzone>
-				</div>
+				<UploadCardHeader />
 				<div className={'app-card-content'}>
 					<div className={'app-card-content-inner'}>
 						<form onSubmit={this.sendMessage}>
@@ -230,7 +151,6 @@ class UploadCard extends Component {
 									id={'publicKey'}
 								/>
 							</div>
-
 							<div
 								className={classNames('app-form-item', {
 									error: _.get(errors, 'topic')

@@ -20,20 +20,25 @@ class Table extends React.Component {
         accessor: 'payload.path'
       },
       {
-        Header: 'Encrypted File Hash',
+        Header: 'IPFS Hash',
         accessor: 'payload.hash',
         maxWidth: 700
       },
       {
         Header: 'Received/Sent',
         accessor: 'type'
+      },
+      {
+        Header: 'Download',
+        accessor: 'payload.hash'
       }
     ];
+
     return (
       <ReactTable
         data={events}
         columns={columns}
-        defaultPageSize={15}
+        defaultPageSize={7}
         resizable={true}
         className="-striped -highlight -hover -bordered -responsive"
       />
