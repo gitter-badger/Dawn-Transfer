@@ -34,7 +34,7 @@
 
 body,
 .pure-g [class*='pure-u'] {
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Raleway', sans-serif;
 }
 
 .header {
@@ -44,7 +44,7 @@ body,
 h1,
 h2,
 h3 {
-  font-family: 'Raleway', 'Arial Narrow', sans-serif;
+  font-family: 'Raleway', sans-serif;
 }
 
 code {
@@ -168,7 +168,7 @@ aside {
   position: fixed;
   padding: 5px;
   background: #0c1a2b;
-  font-family: 'Oswald', 'Arial Narrow', sans-serif;
+  font-family: 'Raleway', 'Arial Narrow', sans-serif;
 }
 
 .navbar a {
@@ -291,9 +291,12 @@ aside {
   overflow: hidden;
   position: relative;
   background: #ffffff;
+  /* Border */
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
+  border-color: white;
+  border-style: dotted;
 }
 @media (min-width: 768px) {
   .app-card {
@@ -728,4 +731,93 @@ aside {
 .app-message p.error {
   border-color: #d0152e;
   color: #d0152e;
+}
+
+/* MAIN CONTAINER */
+.main-container,
+html,
+body {
+  background-color: coral;
+  background-image: url('aurora.jpeg');
+  background-color: #cccccc;
+  height: 100%;
+  margin: 0;
+}
+
+.main-container > * {
+}
+
+/* FLEXBOXES */
+.flex-vertical {
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-horizontal {
+  background-color: transparent;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.flex-horizontal > * {
+}
+
+/* TRANSFER CARD */
+.transfer {
+  background-color: transparent;
+}
+
+/* MESSAGE TABLE*/
+.messages {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.message-table {
+  color: white;
+}
+
+/* We rely on source order for mobile-first approach
+ * in this case:
+ * 1. header
+ * 2. transfer
+ * 3. messages
+ * 5. footer
+ */
+
+/* Medium screens */
+@media all and (min-width: 600px) {
+  /* We tell both sidebars to share a row */
+  .element {
+    flex: 1 auto 1 1;
+  }
+}
+
+/* Large screens */
+@media all and (min-width: 800px) {
+  /* We invert order of first sidebar and main
+   * And tell the main element to take twice as much width as the other two sidebars 
+   */
+  .flex-horizontal {
+    flex: 2 100%;
+  }
+  .transfer {
+    order: 1;
+  }
+  .messages {
+    order: 2;
+  }
+  .footer {
+    order: 3;
+  }
+}
+
+/* HEADER */
+
+header h1 {
+  color: white;
+  font-family: 'Raleway';
+  flex: 0 1 100%;
 }

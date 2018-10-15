@@ -20,22 +20,29 @@ class Table extends React.Component {
         accessor: 'payload.path'
       },
       {
-        Header: 'Encrypted File Hash',
+        Header: 'IPFS Hash',
         accessor: 'payload.hash',
         maxWidth: 700
       },
       {
         Header: 'Received/Sent',
         accessor: 'type'
+      },
+      {
+        Header: 'Download',
+        accessor: 'payload.hash'
       }
     ];
+
     return (
-      <ReactTable
-        data={events}
-        columns={columns}
-        defaultPageSize={5}
-        resizable={true}
-      />
+      <div className="message-table">
+        <ReactTable
+          data={events}
+          columns={columns}
+          defaultPageSize={5}
+          resizable={true}
+        />
+      </div>
     );
   }
 }

@@ -161,64 +161,7 @@ class Whisper extends React.Component {
       );
     }
 
-    return (
-      <div>
-        <ToastContainer />
-        <h1>Whisper</h1>
-        <form onSubmit={this.sendMessage}>
-          <input
-            type="text"
-            name="note"
-            value={this.state.note}
-            onChange={this.onChange}
-            placeholder="Add a note..."
-          />
-          <br />
-          <input
-            type="text"
-            name="pubKey"
-            value={this.state.pubKey}
-            onChange={this.onChange}
-            placeholder="Recipient's PubKey..."
-          />
-          <br />
-          <input
-            type="text"
-            name="topic"
-            value={this.state.topic}
-            onChange={this.onChange}
-            placeholder="Topic to Post to..."
-          />
-          <br />
-          <input
-            type="submit"
-            className="btn btn-block btn-dark"
-            value="Send Through Whisper"
-          />
-        </form>
-
-        <h1>Add Subscription</h1>
-        <form onSubmit={this.onSubmitNewSubscription}>
-          <input
-            type="text"
-            name="topics"
-            value={this.state.topics}
-            onChange={this.onChange}
-            placeholder="Topics (Comma separated)..."
-          />
-          <br />
-          <input
-            type="submit"
-            className="btn btn-block btn-dark"
-            value="Create new Listener"
-          />
-        </form>
-
-        <br />
-        <hr />
-        {/* {this.state.contentLoaded ? <p>Hash Sent!</p> : null} */}
-      </div>
-    );
+    return <div />;
   }
 }
 
