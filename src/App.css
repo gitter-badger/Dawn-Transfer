@@ -103,7 +103,7 @@ ul li:not(:last-child) {
 /* Control the right side */
 .right {
   right: 0;
-  background-color: #2e3440;
+  background-color: #EEEEE;
 }
 
 /* If you want the content centered horizontally and vertically */

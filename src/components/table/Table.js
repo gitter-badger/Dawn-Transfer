@@ -33,8 +33,9 @@ class Table extends React.Component {
       <ReactTable
         data={events}
         columns={columns}
-        defaultPageSize={5}
+        defaultPageSize={15}
         resizable={true}
+        className="-striped -highlight -hover -bordered -responsive"
       />
     );
   }
