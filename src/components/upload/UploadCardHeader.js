@@ -74,6 +74,24 @@ class UploadCardHeader extends Component {
 		// Get latest addedFile from props
 		const { ipfsAddedFile, uploadedFile } = this.props.upload;
 
+		let renderUploadContent;
+		if (ipfsAddedFile.filePath) {
+			renderUploadContent = (
+				<div>
+					<p className="file-added-confirmation">
+						File Added! {ipfsAddedFile.filePath}
+					</p>
+					<span> (Click to add another) </span>
+				</div>
+			);
+		} else {
+			renderUploadContent = (
+				<div>
+					<p> + Add your File </p>
+				</div>
+			);
+		}
+
 		return (
 			<div className={'app-card-header'}>
 				<Dropzone
@@ -91,12 +109,9 @@ class UploadCardHeader extends Component {
 								: null}
 						</p>
 					*/}
-
-						<p>
-							{ipfsAddedFile.filePath
-								? ipfsAddedFile.filePath
-								: 'Drop File here'}
-						</p>
+						<div className="upload-card-header">
+							{renderUploadContent}
+						</div>
 					</div>
 				</Dropzone>
 			</div>

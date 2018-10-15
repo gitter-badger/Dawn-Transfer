@@ -151,26 +151,6 @@ class UploadCard extends Component {
 									id={'publicKey'}
 								/>
 							</div>
-							<div
-								className={classNames('app-form-item', {
-									error: _.get(errors, 'topic')
-								})}
-							>
-								<label htmlFor={'topic'}>Topic</label>
-								<input
-									value={_.get(form, 'topic')}
-									onChange={this._onTextChange}
-									name={'topic'}
-									placeholder={
-										_.get(errors, 'topic')
-											? _.get(errors, 'topic')
-											: '1234'
-									}
-									type={'text'}
-									id={'topic'}
-								/>
-							</div>
-
 							<div className={'app-form-item'}>
 								<label htmlFor={'message'}>Message</label>
 								<textarea
@@ -187,7 +167,7 @@ class UploadCard extends Component {
 									type={'submit'}
 									className={'app-button primary'}
 								>
-									Send through Whisper
+									Send to Peer
 								</button>
 							</div>
 						</form>

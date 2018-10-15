@@ -31,17 +31,26 @@ class Table extends React.Component {
       {
         Header: 'Download',
         accessor: 'payload.hash'
+      },
+      {
+        Header: 'Message',
+        accessor: 'payload.note'
       }
     ];
 
     return (
-      <ReactTable
-        data={events}
-        columns={columns}
-        defaultPageSize={7}
-        resizable={true}
-        className="-striped -highlight -hover -bordered -responsive"
-      />
+      <div className="message-table">
+        <ReactTable
+          data={events}
+          columns={columns}
+          defaultPageSize={7}
+          resizable={true}
+          className="-striped -highlight -hover -bordered -responsive"
+          style={{
+            height: '400px' // This will force the table body to overflow and scroll, since there is not enough room
+          }}
+        />
+      </div>
     );
   }
 }

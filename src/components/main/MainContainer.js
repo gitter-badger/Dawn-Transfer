@@ -15,11 +15,11 @@ class Main extends React.Component {
     return (
       <div className="main-container">
         <div className="flex-vertical">
-          {/* Vertical Flex - Header, Content */}
+          {/* Vertical Flex - for Header, Content */}
           <Header />
 
           <div className="flex-horizontal">
-            {/* Horizontal Flex - Transfer, Messages */}
+            {/* Horizontal Flex - for Transfer, Messages */}
 
             {/* Left Half of Page*/}
             <div className="container element transfer">
