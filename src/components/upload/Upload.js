@@ -85,6 +85,7 @@ class UploadPage extends Component {
   render() {
     // Get latest addedFile from props
     const { ipfsAddedFile, uploadedFile } = this.props.upload;
+
     // Set Content Preview
     let contentPreview;
     switch (uploadedFile.mimeType.split('/')[0]) {

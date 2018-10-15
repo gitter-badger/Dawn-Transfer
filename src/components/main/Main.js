@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 // Components
-import Decrypt from '../decrypt/Decrypt';
-import Upload from '../upload/Upload';
+import UploadCard from '../upload/UploadCard';
 import Table from '../table/Table';
 
 class Main extends React.Component {
@@ -13,13 +12,12 @@ class Main extends React.Component {
         {/* Left Half of Page*/}
         <div className="split left">
           <div className="centered">
-            <Upload />
+            <UploadCard />
           </div>
         </div>
         {/* Right Half of Page*/}
         <div className="split right">
           <div className="centered">
-            <Decrypt />
             <Table />
           </div>
         </div>
