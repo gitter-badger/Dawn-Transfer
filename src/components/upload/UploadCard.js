@@ -102,7 +102,7 @@ class UploadCard extends Component {
 	async componentWillReceiveProps(nextProps) {
 		// Set default values for component
 		const { form } = this.state;
-		form.publicKey = nextProps.whisper.details.publicKey;
+		// form.publicKey = nextProps.whisper.details.publicKey;
 		form.topic = '1234';
 		this.setState({ form });
 	}

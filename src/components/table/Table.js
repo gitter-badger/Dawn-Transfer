@@ -83,11 +83,11 @@ class Table extends React.Component {
         Header: 'File Name',
         accessor: 'payload.path'
       },
-      {
-        Header: 'IPFS Hash',
-        accessor: 'payload.hash',
-        maxWidth: 700
-      },
+      // {
+      //   Header: 'IPFS Hash',
+      //   accessor: 'payload.hash',
+      //   maxWidth: 700
+      // },
       {
         Header: 'Download',
         accessor: 'payload',
