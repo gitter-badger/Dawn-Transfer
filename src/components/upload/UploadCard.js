@@ -60,7 +60,7 @@ class UploadCard extends Component {
 			hash: ipfsAddedFile.fileHash,
 			path: ipfsAddedFile.filePath,
 			iv: encryptedFile.decryptionKey,
-			note: this.state.message ? this.state.message : ''
+			note: this.state.form.message ? this.state.form.message : ''
 		};
 
 		if (payload.hash === '' || payload.path === '' || payload.iv === '') {
