@@ -855,4 +855,7 @@ header h1 {
   color: white;
   font-family: 'Raleway';
   flex: 0 1 100%;
+  width: 100%;
+  max-width: 85vw;
+  margin-left: 130px;
 }
