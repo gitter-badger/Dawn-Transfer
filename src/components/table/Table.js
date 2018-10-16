@@ -115,6 +115,7 @@ class Table extends React.Component {
           columns={columns}
           defaultPageSize={20}
           resizable={false}
+          showPagination={false}
           style={{
             height: '400px' // This will force the table body to overflow and scroll, since there is not enough room
           }}
