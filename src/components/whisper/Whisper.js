@@ -91,6 +91,7 @@ class Whisper extends React.Component {
     await this.createListener([this.state.topic]);
   }
 
+  // Wrapper function for creating a new listener
   createListener = async topics => {
     // Convert ascii topics to hex
     const topicsHex = topics.map(t => util.fromAscii(t));

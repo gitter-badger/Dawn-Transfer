@@ -5,6 +5,9 @@ import PropTypes from 'prop-types';
 import UploadCard from '../upload/UploadCard';
 import Table from '../table/Table';
 
+// Whisper
+import Whisper from '../whisper/Whisper';
+
 class Main extends React.Component {
   render() {
     return (
@@ -19,6 +22,7 @@ class Main extends React.Component {
         <div className="split right">
           <div className="centered">
             <Table />
+            <Whisper />
           </div>
         </div>
       </div>

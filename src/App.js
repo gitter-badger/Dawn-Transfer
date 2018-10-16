@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { Navbar, Jumbotron, Button } from 'react-bootstrap';
 
 // Redux
 import { Provider } from 'react-redux';
