@@ -95,7 +95,10 @@ class Table extends React.Component {
           console.log('ROW', row);
           return (
             <span>
-              <button onClick={() => this.handleDownloadClick(row.value)}>
+              <button
+                className="download-button"
+                onClick={() => this.handleDownloadClick(row.value)}
+              >
                 Download
               </button>
             </span>
@@ -115,6 +118,7 @@ class Table extends React.Component {
           columns={columns}
           defaultPageSize={20}
           resizable={false}
+          noDataText={'No messages...'}
           showPagination={false}
           style={{
             height: '400px' // This will force the table body to overflow and scroll, since there is not enough room
