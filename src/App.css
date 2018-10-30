@@ -34,7 +34,7 @@
 
 body,
 .pure-g [class*='pure-u'] {
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Raleway', sans-serif;
 }
 
 .header {
@@ -44,7 +44,7 @@ body,
 h1,
 h2,
 h3 {
-  font-family: 'Raleway', 'Arial Narrow', sans-serif;
+  font-family: 'Raleway', sans-serif;
 }
 
 code {
@@ -55,10 +55,9 @@ code {
 
 .container {
   box-sizing: border-box;
-  width: calc(100% - 60px);
-  max-width: 600px;
-  padding: 45px 20px;
-  margin: 0 auto;
+  width: 100%;
+  padding: 0 20px;
+  margin: 0;
 }
 
 .pure-button-primary {
@@ -103,7 +102,7 @@ ul li:not(:last-child) {
 /* Control the right side */
 .right {
   right: 0;
-  background-color: #2e3440;
+  background-color: #EEEEE;
 }
 
 /* If you want the content centered horizontally and vertically */
@@ -168,7 +167,7 @@ aside {
   position: fixed;
   padding: 5px;
   background: #0c1a2b;
-  font-family: 'Oswald', 'Arial Narrow', sans-serif;
+  font-family: 'Raleway', 'Arial Narrow', sans-serif;
 }
 
 .navbar a {
@@ -291,9 +290,12 @@ aside {
   overflow: hidden;
   position: relative;
   background: #ffffff;
+  /* Border */
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
+  border-color: white;
+  border-style: dotted;
 }
 @media (min-width: 768px) {
   .app-card {
@@ -728,4 +730,148 @@ aside {
 .app-message p.error {
   border-color: #d0152e;
   color: #d0152e;
+}
+
+/* Upload Card Header */
+.app-card-header p {
+  color: black;
+}
+
+.app-card-header span {
+  color: blue;
+  font-size: 10px;
+}
+
+.app-card-header:hover {
+  background-color: rgb(0, 0, 0, 0.1);
+}
+
+/* MAIN CONTAINER */
+.main-container,
+html,
+body {
+  background-color: coral;
+  background-image: url('https://images.unsplash.com/photo-1507908708918-778587c9e563?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=c103c10901350e8778c41dfc521eff55&auto=format&fit=crop&w=1920&h=1080');
+  background-size: cover;
+  background-color: #cccccc;
+  height: 100%;
+  margin: 0;
+}
+
+.main-container > * {
+}
+
+/* FLEXBOXES */
+.flex-vertical {
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-horizontal {
+  background-color: transparent;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-start;
+  padding-top: 45px;
+  justify-content: space-between;
+}
+
+.flex-horizontal > * {
+}
+
+/* TRANSFER CARD */
+.transfer {
+  background-color: transparent;
+}
+
+/* MESSAGE TABLE*/
+.messages {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.message-table {
+  color: white;
+}
+
+.download-button {
+  color: black;
+  margin: 0 auto;
+}
+
+/* We rely on source order for mobile-first approach
+ * in this case:
+ * 1. header
+ * 2. transfer
+ * 3. messages
+ * 5. footer
+ */
+
+/* Medium screens */
+@media all and (max-width: 600px) {
+  .flex-horizontal {
+    flex-direction: column;
+  }
+
+  .container {
+    margin: 0 auto;
+    margin-bottom: 20px;
+  }
+}
+
+/* Medium screens */
+@media all and (min-width: 600px) {
+  .flex-horizontal {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 85vw;
+  }
+  /* We tell both sidebars to share a row */
+  .transfer {
+    flex: 0 1;
+    max-width: 600px;
+  }
+
+  .messages {
+    flex: 1;
+  }
+}
+
+/* Large screens */
+@media all and (min-width: 800px) {
+  /* We invert order of first sidebar and main
+   * And tell the main element to take twice as much width as the other two sidebars 
+   */
+
+  .transfer {
+    order: 1;
+  }
+  .messages {
+    order: 2;
+  }
+  .footer {
+    order: 3;
+  }
+}
+
+/* HEADER */
+
+header {
+  flex: 0 1 100%;
+  width: 100%;
+  max-width: 85vw;
+  margin-left: 30px;
+  text-align: center;
+}
+
+header h1 {
+  color: white;
+  font-family: 'Raleway';
+}
+
+header span {
+  color: white;
+  font-family: 'Raleway';
+  font-size: 12px;
+  word-wrap: break-word;
 }
