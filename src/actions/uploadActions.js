@@ -1,4 +1,4 @@
-import { IPFS_ADD_FILE, ENCRYPT_FILE, FILE_UPLOADED } from '../actions/types';
+import { IPFS_ADD_FILE, ENCRYPT_FILE, FILE_UPLOADED } from './types';
 import node from '../util/ipfs';
 import { encrypt } from '../util/encrypt';
 
@@ -6,7 +6,7 @@ import { encrypt } from '../util/encrypt';
 export const ipfsAddFile = (buffer, fileName) => async dispatch => {
   const filesAdded = await node.files.add({
     content: buffer,
-    path: fileName
+    path: fileName,
   });
   console.log('Added file:', filesAdded[0].path, filesAdded[0].hash);
   dispatch(ipfsAddFileAction(filesAdded[0].path, filesAdded[0].hash));
@@ -29,39 +29,33 @@ export const onFileUploaded = (
   fileName,
   mimeType,
   filePreview,
-  fileBuffer
+  fileBuffer,
 ) => async dispatch => {
   dispatch(fileUploadedAction(fileName, mimeType, filePreview, fileBuffer));
 };
 
 // //////////
 // Actions
-const fileUploadedAction = (fileName, mimeType, filePreview, fileBuffer) => {
-  return {
-    type: FILE_UPLOADED,
-    payload: {
-      fileName,
-      mimeType,
-      filePreview,
-      fileBuffer
-    }
-  };
-};
+const fileUploadedAction = (fileName, mimeType, filePreview, fileBuffer) => ({
+  type: FILE_UPLOADED,
+  payload: {
+    fileName,
+    mimeType,
+    filePreview,
+    fileBuffer,
+  },
+});
 
-const encryptFileAction = (encryptedBuffer, decryptionKey, fileName) => {
-  return {
-    type: ENCRYPT_FILE,
-    payload: {
-      encryptedBuffer,
-      decryptionKey,
-      fileName
-    }
-  };
-};
+const encryptFileAction = (encryptedBuffer, decryptionKey, fileName) => ({
+  type: ENCRYPT_FILE,
+  payload: {
+    encryptedBuffer,
+    decryptionKey,
+    fileName,
+  },
+});
 
-const ipfsAddFileAction = (filePath, fileHash) => {
-  return {
-    type: IPFS_ADD_FILE,
-    payload: { filePath, fileHash }
-  };
-};
+const ipfsAddFileAction = (filePath, fileHash) => ({
+  type: IPFS_ADD_FILE,
+  payload: { filePath, fileHash },
+});

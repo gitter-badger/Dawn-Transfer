@@ -11,7 +11,7 @@ const encrypt = dataBuffer => {
   // const iv = _generateIv();
   console.log('iv', iv);
   const encryptFile = CryptoJS.AES.encrypt(dataBase64, key, {
-    iv
+    iv,
   });
   const encryptedBuffer = new Buffer(encryptFile.toString(), 'base64');
   return { encryptedBuffer, iv };
@@ -23,7 +23,7 @@ const decrypt = (encryptedBuffer, iv) => {
   const decryptFile = CryptoJS.AES.decrypt(
     encryptedBuffer.toString('base64'),
     key,
-    { iv }
+    { iv },
   );
   const decrypted = decryptFile.toString(CryptoJS.enc.Utf8);
 
@@ -31,9 +31,7 @@ const decrypt = (encryptedBuffer, iv) => {
   return outputBuffer;
 };
 
-const _generateIv = () => {
-  return CryptoJS.lib.WordArray.random(128 / 8);
-};
+const _generateIv = () => CryptoJS.lib.WordArray.random(128 / 8);
 
 // const outputFileAsync = (data, fileExt) => {
 //   writeFile(`out/unencrypted${fileExt}`, data)

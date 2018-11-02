@@ -1,20 +1,20 @@
 import axios from 'axios';
+
+import Web3 from 'web3';
+import util from 'ethjs-util';
 import {
   GET_WHISPER,
   SEND_WHISPER_MESSAGE,
   CREATE_LISTENER,
   RECEIVED_MESSAGE,
   SET_WHISPER_PROVIDER,
-  SET_WHISPER
+  SET_WHISPER,
 } from './types';
-
-import Web3 from 'web3';
-import util from 'ethjs-util';
 
 export const setWhisper = wsProvider => async dispatch => {
   dispatch(setWhisperProviderAction(wsProvider));
-  let web3 = new Web3(new Web3.providers.WebsocketProvider(wsProvider));
-  let shh = web3.shh;
+  const web3 = new Web3(new Web3.providers.WebsocketProvider(wsProvider));
+  const shh = web3.shh;
   dispatch(setWhisperAction(shh));
 };
 
@@ -41,7 +41,7 @@ export const getWhisper = shh => async dispatch => {
     keyPairId,
     symKeyId,
     publicKey,
-    privateKey
+    privateKey,
   };
   return dispatch(getWhisperAction(whisper));
 };
@@ -67,7 +67,7 @@ export const createListener = (opts, shh) => dispatch => {
     .subscribe('messages', {
       // symKeyID: this.state.whisper.symKeyId, //symKeyId
       privateKeyID: opts.privateKeyID,
-      topics
+      topics,
     })
     .on('data', data => {
       const payload = JSON.parse(util.toAscii(data.payload));
@@ -79,50 +79,36 @@ export const createListener = (opts, shh) => dispatch => {
   // log
   console.log(
     'Created Listener! Listening for topics:',
-    opts.topics.map(t => {
-      return util.toAscii(t);
-    })
+    opts.topics.map(t => util.toAscii(t)),
   );
 };
 
-const sendMessageAction = payload => {
-  return {
-    type: SEND_WHISPER_MESSAGE,
-    payload
-  };
-};
+const sendMessageAction = payload => ({
+  type: SEND_WHISPER_MESSAGE,
+  payload,
+});
 
-const receivedMessageAction = payload => {
-  return {
-    type: RECEIVED_MESSAGE,
-    payload
-  };
-};
+const receivedMessageAction = payload => ({
+  type: RECEIVED_MESSAGE,
+  payload,
+});
 
-const createListenerAction = subscription => {
-  return {
-    type: CREATE_LISTENER,
-    payload: subscription
-  };
-};
+const createListenerAction = subscription => ({
+  type: CREATE_LISTENER,
+  payload: subscription,
+});
 
-const setWhisperProviderAction = wsProvider => {
-  return {
-    type: SET_WHISPER_PROVIDER,
-    payload: wsProvider
-  };
-};
+const setWhisperProviderAction = wsProvider => ({
+  type: SET_WHISPER_PROVIDER,
+  payload: wsProvider,
+});
 
-const setWhisperAction = shh => {
-  return {
-    type: SET_WHISPER,
-    payload: shh
-  };
-};
+const setWhisperAction = shh => ({
+  type: SET_WHISPER,
+  payload: shh,
+});
 
-const getWhisperAction = whisper => {
-  return {
-    type: GET_WHISPER,
-    payload: whisper
-  };
-};
+const getWhisperAction = whisper => ({
+  type: GET_WHISPER,
+  payload: whisper,
+});

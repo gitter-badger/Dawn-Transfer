@@ -4,7 +4,7 @@ import { GET_WHISPER, CREATE_LISTENER, SET_WHISPER } from '../actions/types';
 const initialState = {
   details: {},
   shh: {},
-  subscriptions: []
+  subscriptions: [],
 };
 
 export default function(state = initialState, action) {
@@ -12,18 +12,18 @@ export default function(state = initialState, action) {
     case GET_WHISPER:
       return {
         ...state,
-        details: action.payload
+        details: action.payload,
       };
     case SET_WHISPER:
       return {
         ...state,
-        shh: action.payload
+        shh: action.payload,
       };
 
     case CREATE_LISTENER:
       return {
         ...state,
-        subscriptions: [...state.subscriptions, action.payload]
+        subscriptions: [...state.subscriptions, action.payload],
       };
 
     default:

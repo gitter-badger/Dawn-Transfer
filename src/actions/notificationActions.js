@@ -13,9 +13,7 @@ export const notify = (msg, type) => dispatch => {
   }
 };
 
-const notifyAction = (msg, type) => {
-  return {
-    type: NOTIFY,
-    payload: { msg, type }
-  };
-};
+const notifyAction = (msg, type) => ({
+  type: NOTIFY,
+  payload: { msg, type },
+});

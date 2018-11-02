@@ -21,12 +21,12 @@ class Main extends React.Component {
           <div className="flex-horizontal">
             {/* Horizontal Flex - for Transfer, Messages */}
 
-            {/* Left Half of Page*/}
+            {/* Left Half of Page */}
             <div className="container element transfer">
               <UploadCard />
             </div>
 
-            {/* Right Half of Page*/}
+            {/* Right Half of Page */}
             <div className="container element messages">
               <Table />
               <Whisper />

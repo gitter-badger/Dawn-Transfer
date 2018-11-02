@@ -4,19 +4,19 @@ import { IPFS_ADD_FILE, ENCRYPT_FILE, FILE_UPLOADED } from '../actions/types';
 const initialState = {
   ipfsAddedFile: {
     filePath: '',
-    filehash: ''
+    filehash: '',
   },
   encryptedFile: {
     encryptedBuffer: [],
     decryptionKey: '',
-    fileName: ''
+    fileName: '',
   },
   uploadedFile: {
     fileName: '',
     mimeType: '',
     filePreview: '',
-    fileBuffer: []
-  }
+    fileBuffer: [],
+  },
 };
 
 export default function(state = initialState, action) {
@@ -24,17 +24,17 @@ export default function(state = initialState, action) {
     case IPFS_ADD_FILE:
       return {
         ...state,
-        ipfsAddedFile: action.payload
+        ipfsAddedFile: action.payload,
       };
     case ENCRYPT_FILE:
       return {
         ...state,
-        encryptedFile: action.payload
+        encryptedFile: action.payload,
       };
     case FILE_UPLOADED:
       return {
         ...state,
-        uploadedFile: action.payload
+        uploadedFile: action.payload,
       };
     default:
       return state;

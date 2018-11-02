@@ -2,7 +2,7 @@ import { NOTIFY } from '../actions/types';
 // import isEmpty from '../utils/is-empty';
 
 const initialState = {
-  notifications: []
+  notifications: [],
 };
 
 export default function(state = initialState, action) {
@@ -10,7 +10,7 @@ export default function(state = initialState, action) {
     case NOTIFY:
       return {
         ...state,
-        notifications: [...state.notifications, action.payload]
+        notifications: [...state.notifications, action.payload],
       };
     default:
       return state;

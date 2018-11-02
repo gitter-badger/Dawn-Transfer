@@ -20,4 +20,3 @@ export const ENCRYPT_FILE = 'ENCRYPT_FILE';
 
 // Decryption
 export const DECRYPT_FILE = 'DECRYPT_FILE';
-

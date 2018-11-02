@@ -4,7 +4,7 @@ import { SEND_WHISPER_MESSAGE, RECEIVED_MESSAGE } from '../actions/types';
 const initialState = {
   events: [],
   received_messages: [],
-  sent_messages: []
+  sent_messages: [],
 };
 
 export default function(state = initialState, action) {
@@ -13,13 +13,16 @@ export default function(state = initialState, action) {
       return {
         ...state,
         sent_messages: [...state.sent_messages, action.payload],
-        events: [...state.events, { type: 'SENT', payload: action.payload }]
+        events: [...state.events, { type: 'SENT', payload: action.payload }],
       };
     case RECEIVED_MESSAGE:
       return {
         ...state,
         received_messages: [...state.received_messages, action.payload],
-        events: [...state.events, { type: 'RECEIVED', payload: action.payload }]
+        events: [
+          ...state.events,
+          { type: 'RECEIVED', payload: action.payload },
+        ],
       };
     default:
       return state;

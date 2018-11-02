@@ -4,7 +4,7 @@ import { SET_WHISPER_PROVIDER } from '../actions/types';
 const initialState = {
   whisper: '',
   ipfs: '',
-  web3: ''
+  web3: '',
 };
 
 export default function(state = initialState, action) {
@@ -12,7 +12,7 @@ export default function(state = initialState, action) {
     case SET_WHISPER_PROVIDER:
       return {
         ...state,
-        whisper: action.payload
+        whisper: action.payload,
       };
     default:
       return state;

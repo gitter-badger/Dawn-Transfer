@@ -4,8 +4,8 @@ import { IPFS_GET_FILE, DECRYPT_FILE } from '../actions/types';
 const initialState = {
   decrypted: {
     decryptedBuffer: [],
-    fileName: ''
-  }
+    fileName: '',
+  },
 };
 
 export default function(state = initialState, action) {
@@ -13,7 +13,7 @@ export default function(state = initialState, action) {
     case DECRYPT_FILE:
       return {
         ...state,
-        decrypted: action.payload
+        decrypted: action.payload,
       };
     default:
       return state;

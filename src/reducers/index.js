@@ -6,9 +6,9 @@ import downloadReducer from './downloadReducer';
 import eventsReducer from './eventsReducer';
 
 export default combineReducers({
-	whisper: whisperReducer,
-	providers: providerReducer,
-	upload: uploadReducer,
-	download: downloadReducer,
-	events: eventsReducer
+  whisper: whisperReducer,
+  providers: providerReducer,
+  upload: uploadReducer,
+  download: downloadReducer,
+  events: eventsReducer,
 });
