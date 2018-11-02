@@ -6,8 +6,16 @@ stages:
 - test
 - build
 - deploy
+test_site:
+  image: node:10.13.0
+  stage: test
+  before_script:
+  - npm install
+  script:
+  - npm test
+
 build_site:
-  image: node:8.11.4
+  image: node:10.13.0
   stage: build
   before_script:
   - npm install
