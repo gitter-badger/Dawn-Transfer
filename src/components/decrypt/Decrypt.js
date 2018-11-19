@@ -15,6 +15,7 @@ import Whisper from '../whisper/Whisper';
 
 // Redux
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { decryptFile } from '../../actions/downloadActions';
 
 const key = 'SECRET_KEY',
@@ -28,7 +29,7 @@ class Decrypt extends React.Component {
       hash: '',
       fileName: 'pic.jpg',
       contentLoaded: false,
-      res: []
+      res: [],
     };
     this.onChange = this.onChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -61,7 +62,7 @@ class Decrypt extends React.Component {
       hash,
       fileName,
       key,
-      iv
+      iv,
     );
   };
 
@@ -152,18 +153,24 @@ Decrypt.propTypes = {
   decryptFile: PropTypes.func.isRequired,
   download: PropTypes.object.isRequired,
   whisper: PropTypes.object.isRequired,
-  events: PropTypes.object.isRequired
+  events: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
   download: state.download,
   whisper: state.whisper,
-  events: state.events
+  events: state.events,
 });
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      decryptFile,
+    },
+    dispatch,
+  );
 
 export default connect(
   mapStateToProps,
-  {
-    decryptFile
-  }
+  mapDispatchToProps,
 )(Decrypt);
