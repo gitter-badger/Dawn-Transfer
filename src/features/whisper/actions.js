@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Web3 from 'web3';
 import util from 'ethjs-util';
+import isEmpty from '../../util/is-empty';
 import {
   GET_WHISPER,
   SEND_WHISPER_MESSAGE,
@@ -10,39 +11,54 @@ import {
   SET_WHISPER,
 } from '../../state/types';
 
-export const setWhisper = wsProvider => async dispatch => {
-  dispatch(setWhisperProviderAction(wsProvider));
-  const web3 = new Web3(new Web3.providers.WebsocketProvider(wsProvider));
+export const setWhisper = (wsProvider, httpProvider) => async dispatch => {
+  let web3, provider;
+  if (!isEmpty(wsProvider)) {
+    web3 = new Web3(new Web3.providers.WebsocketProvider(wsProvider));
+    provider = wsProvider;
+  } else if (!isEmpty(httpProvider)) {
+    web3 = new Web3(new Web3.providers.HttpProvider(httpProvider));
+    provider = httpProvider;
+  }
+  dispatch(setWhisperProviderAction(provider));
   const shh = web3.shh;
   dispatch(setWhisperAction(shh));
+  console.log("Set `shh` with provider:",provider)
+
 };
 
 export const getWhisper = shh => async dispatch => {
-  console.log('Shh Current Provider', shh.currentProvider);
-  console.log('Shh Given Provider:', shh.givenProvider);
+  try {
+    console.log('Shh Current Provider', shh.currentProvider);
+    console.log('Shh Given Provider:', shh.givenProvider);
 
-  // Get node info
-  const info = await shh.getInfo();
-  const isListening = await shh.net.isListening();
-  const peerCount = await shh.net.getPeerCount();
-  const netId = await shh.net.getId();
+    // Get node info
+    const info = await shh.getInfo();
+    const isListening = await shh.net.isListening();
+    const peerCount = await shh.net.getPeerCount();
+    const netId = await shh.net.getId();
 
-  // Get Identity
-  const keyPairId = await shh.newKeyPair();
-  const symKeyId = await shh.newSymKey();
-  const publicKey = await shh.getPublicKey(keyPairId);
-  const privateKey = await shh.getPrivateKey(keyPairId);
-  const whisper = {
-    info,
-    isListening,
-    peerCount,
-    netId,
-    keyPairId,
-    symKeyId,
-    publicKey,
-    privateKey,
-  };
-  return dispatch(getWhisperAction(whisper));
+    // Get Identity
+    const keyPairId = await shh.newKeyPair();
+    const symKeyId = await shh.newSymKey();
+    const publicKey = await shh.getPublicKey(keyPairId);
+    const privateKey = await shh.getPrivateKey(keyPairId);
+    const whisper = {
+      info,
+      isListening,
+      peerCount,
+      netId,
+      keyPairId,
+      symKeyId,
+      publicKey,
+      privateKey,
+    };
+    console.log('New Whisper Peer Identity!');
+    return dispatch(getWhisperAction(whisper));
+  } catch (err) {
+    console.log("Couldn't Get Whisper Details: ", err.message)
+    return new Error(err.message);
+  }
 };
 
 export const sendMessage = (opts, payload, shh) => dispatch => {
@@ -59,6 +75,10 @@ export const sendMessage = (opts, payload, shh) => dispatch => {
 };
 
 export const createListener = (opts, shh) => dispatch => {
+
+  console.log("Creating Listener with opts:", opts)
+  
+
   // Generate new identity
   const topics = opts.topics;
   // will receive also its own message send, below
