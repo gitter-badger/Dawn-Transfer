@@ -20,10 +20,10 @@ const callback = (error, response, body) => {
 	}
 
 export const callWhisper = () => {
-	var dataString =
+	const dataString =
 		'{"jsonrpc":"2.0","method":"shh_version","params":[],"id":1}';
 
-	var options = {
+	const options = {
 		url: proxyurl + url,
 		method: 'POST',
 		headers: headers,
@@ -35,27 +35,26 @@ export const callWhisper = () => {
 };
 
 export const getWhisperInfo = () => {
-	var dataString =
+	const dataString =
 		'{"jsonrpc":"2.0","method":"shh_info","params":[],"id":1}';
 
-	var options = {
+	const options = {
 		url: proxyurl + url,
 		method: 'POST',
 		headers: headers,
 		body: dataString,
 	};
-
 	console.log('getting Whisper info');
 	request(options, callback);
 
 };
 
-
-export const shhextConfirmMessagesProcessed = () => {
-	var dataString =
+// #### shhext_confirmMessagesProcessed
+export const shhextConfirmMessagesProcessed = (params) => {
+	const dataString =
 		'{"jsonrpc":"2.0","method":"shhext_confirmMessagesProcessed","params":[],"id":1}';
 
-	var options = {
+	const options = {
 		url: proxyurl + url,
 		method: 'POST',
 		headers: headers,
@@ -66,18 +65,65 @@ export const shhextConfirmMessagesProcessed = () => {
 	request(options, callback);
 };
 
-export const shhext_post = () => {
-	var dataString =
-		'{"jsonrpc":"2.0","method":"shhext_post","params":[],"id":1}';
+// #### shhext_post
+export const shhext_post = (params) => {
 
-	var options = {
+	console.log("SSHEXT_POST PARAMS", params)
+
+	const dataString =
+		`{"jsonrpc":"2.0","method":"shhext_post","params":[${JSON.stringify(params)}],"id":1}`;
+
+	const options = {
 		url: proxyurl + url,
 		method: 'POST',
 		headers: headers,
 		body: dataString,
 	};
 
-	console.log('shhext_post');
+	console.log('shhext_post', dataString);
+
+
+	request(options, callback);
+};
+
+// #### shhext_requestMessages
+// TODO: what are the params here
+export const shhext_requestMessages = (params) => {
+
+	console.log("SSHEXT_REQUESTMESSAGES PARAMS", params)
+
+	const dataString =
+		`{"jsonrpc":"2.0","method":"shhext_requestMessages","params":[${JSON.stringify(params)}],"id":1}`;
+
+	const options = {
+		url: proxyurl + url,
+		method: 'POST',
+		headers: headers,
+		body: dataString,
+	};
+
+	console.log('shhext_requestMessages', dataString);
+
+
+	request(options, callback);
+};
+
+// #### shhext_getNewFilterMessages
+export const shhext_getNewFilterMessages = (params) => {
+
+	console.log("SSHEXT_GETNEWFILTER PARAMS", params)
+
+	const dataString =
+		`{"jsonrpc":"2.0","method":"shhext_getNewFilterMessages","params":[${JSON.stringify(params)}],"id":1}`;
+
+	const options = {
+		url: proxyurl + url,
+		method: 'POST',
+		headers: headers,
+		body: dataString,
+	};
+
+	console.log('shhext_getNewFilterMessages', dataString);
 
 
 	request(options, callback);

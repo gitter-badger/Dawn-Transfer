@@ -13,7 +13,7 @@ import {
 } from '../../state/types';
 
 // Whisper calls 
-import { getWhisperInfo } from "../../util/whispercalls"
+import { getWhisperInfo, shhext_post } from "../../util/whispercalls"
 
 export const setWhisper = (wsProvider, httpProvider) => async dispatch => {
   let web3, provider;
@@ -68,14 +68,16 @@ export const getWhisper = shh => async dispatch => {
 export const sendMessage = (opts, payload, shh) => dispatch => {
   console.log('PAYLOAD 0:', payload);
 
-  shh
-    .post(opts)
-    .then(h => {
-      console.log(`Message with hash ${h} was successfuly sent`);
-      console.log('PAYLOAD:', payload);
-      dispatch(sendMessageAction(payload));
-    })
-    .catch(err => console.log('Error: ', err));
+  // shh
+  //   .post(opts)
+  //   .then(h => {
+  //     console.log(`Message with hash ${h} was successfuly sent`);
+  //     console.log('PAYLOAD:', payload);
+  //     dispatch(sendMessageAction(payload));
+  //   })
+  //   .catch(err => console.log('Error: ', err));
+
+  shhext_post(opts);
 };
 
 export const createListener = (opts, shh) => async dispatch => {

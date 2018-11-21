@@ -40,9 +40,9 @@ class Whisper extends React.Component {
 
   async componentDidMount() {
 
-    callWhisper();
-    getWhisperInfo();
-    shhextConfirmMessagesProcessed();
+    // callWhisper();
+    // getWhisperInfo();
+    // shhextConfirmMessagesProcessed();
 
     // Set Whisper using default provider
     await this.props.setWhisper(null, proxyUrl + httpProvider);
