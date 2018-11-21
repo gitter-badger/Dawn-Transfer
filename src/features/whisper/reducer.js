@@ -1,9 +1,10 @@
-import { GET_WHISPER, CREATE_LISTENER, SET_WHISPER } from '../../state/types';
+import { GET_WHISPER, CREATE_LISTENER, SET_WHISPER, CREATE_MESSAGE_FILTER } from '../../state/types';
 
 const initialState = {
   details: {},
   shh: {},
   subscriptions: [],
+  messageFilters: []
 };
 
 export default function(state = initialState, action) {
@@ -23,6 +24,12 @@ export default function(state = initialState, action) {
       return {
         ...state,
         subscriptions: [...state.subscriptions, action.payload],
+      };
+
+    case CREATE_MESSAGE_FILTER:
+      return {
+        ...state,
+        messageFilters: [...state.messageFilters, action.payload],
       };
 
     default:

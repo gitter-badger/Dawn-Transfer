@@ -2,11 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import util from 'ethjs-util';
 
-import callWhisper from "../../util/whispercalls"
+import {
+  callWhisper,
+  getWhisperInfo,
+  shhextConfirmMessagesProcessed,
+} from '../../util/whispercalls';
 
 // Web3 whisper default provider
 const wsProvider = 'ws://50.2.39.116:8546';
 const httpProvider = 'http://104.197.46.74:8545';
+const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
 
 const topic1 = '1234';
 const topic2 = '5678';
@@ -15,6 +20,8 @@ class Whisper extends React.Component {
   constructor(props) {
     super(props);
     this.onChange = this.onChange.bind(this);
+    this.onChange = this.onChange.bind(this);
+    this.doGetFilterMessages = this.doGetFilterMessages.bind(this);
   }
 
   onChange(e) {
@@ -27,22 +34,31 @@ class Whisper extends React.Component {
   //   await this.createListener(topics);
   // }
 
+  async doGetFilterMessages() {
+    await this.props.getFilterMessages()
+  }
+
   async componentDidMount() {
+
+    callWhisper();
+    getWhisperInfo();
+    shhextConfirmMessagesProcessed();
+
     // Set Whisper using default provider
-    await this.props.setWhisper(null, httpProvider);
-    callWhisper()
+    await this.props.setWhisper(null, proxyUrl + httpProvider);
+    // callWhisper()
 
     // Get web3.shh from props
-    // const { shh } = this.props.whisper;
+    const { shh } = this.props.whisper;
 
     // Create a new Whisper Peer Identity
-    // await this.props.getWhisper(shh);
+    await this.props.getWhisper(shh);
 
     // Set default values for component
-    // console.log("props.whisper: ", this.props.whisper);
+    console.log('props.whisper: ', this.props.whisper);
 
     // Create default listener
-    // await this.createListener([topic1]);
+    await this.createListener([topic1]);
   }
 
   // Wrapper function for creating a new listener
@@ -56,12 +72,14 @@ class Whisper extends React.Component {
       privateKeyID: this.props.whisper.details.keyPairId,
     };
 
-
     // call shh.subscribe
     await this.props.createListener(opts, this.props.whisper.shh);
   };
 
-  render = () => <div />;
+  render = () => (
+    <div> 
+      <button onClick={this.doGetFilterMessages}> getFilterMessages </button>
+    </div>);
 }
 
 Whisper.propTypes = {

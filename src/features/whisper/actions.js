@@ -9,7 +9,11 @@ import {
   RECEIVED_MESSAGE,
   SET_WHISPER_PROVIDER,
   SET_WHISPER,
+  CREATE_MESSAGE_FILTER
 } from '../../state/types';
+
+// Whisper calls 
+import { getWhisperInfo } from "../../util/whispercalls"
 
 export const setWhisper = (wsProvider, httpProvider) => async dispatch => {
   let web3, provider;
@@ -34,9 +38,9 @@ export const getWhisper = shh => async dispatch => {
 
     // Get node info
     const info = await shh.getInfo();
-    const isListening = await shh.net.isListening();
-    const peerCount = await shh.net.getPeerCount();
-    const netId = await shh.net.getId();
+    // const isListening = await shh.net.isListening();
+    // const peerCount = await shh.net.getPeerCount();
+    // const netId = await shh.net.getId();
 
     // Get Identity
     const keyPairId = await shh.newKeyPair();
@@ -45,13 +49,13 @@ export const getWhisper = shh => async dispatch => {
     const privateKey = await shh.getPrivateKey(keyPairId);
     const whisper = {
       info,
-      isListening,
-      peerCount,
-      netId,
+      // isListening,
+      // peerCount,
+      // netId,
       keyPairId,
       symKeyId,
       publicKey,
-      privateKey,
+      privateKey
     };
     console.log('New Whisper Peer Identity!');
     return dispatch(getWhisperAction(whisper));
@@ -74,18 +78,17 @@ export const sendMessage = (opts, payload, shh) => dispatch => {
     .catch(err => console.log('Error: ', err));
 };
 
-export const createListener = (opts, shh) => dispatch => {
+export const createListener = (opts, shh) => async dispatch => {
 
   console.log("Creating Listener with opts:", opts)
-  
 
   // Generate new identity
-  const topics = opts.topics;
+  const { topics, privateKeyID } = opts;
+
   // will receive also its own message send, below
-  const subscription = shh
+  const subscription = await shh
     .subscribe('messages', {
-      // symKeyID: this.state.whisper.symKeyId, //symKeyId
-      privateKeyID: opts.privateKeyID,
+      privateKeyID,
       topics,
     })
     .on('data', data => {
@@ -94,7 +97,20 @@ export const createListener = (opts, shh) => dispatch => {
       console.log(`Hash Received! Hash: ${payload.hash}`);
       // this.notify(`Hash Received! Hash: ${payload.hash}`, 'info');
     });
+
+
+  const newMessageFilter = await shh.newMessageFilter({
+    privateKeyID,
+    topics
+  })
+
+  console.log("SUBSCRIPTION", subscription);
+  console.log("MESSAGE FILTER", newMessageFilter);
+
+
   dispatch(createListenerAction(subscription));
+  dispatch(createMessageFilterAction(newMessageFilter));
+
   // log
   console.log(
     'Created Listener! Listening for topics:',
@@ -102,10 +118,22 @@ export const createListener = (opts, shh) => dispatch => {
   );
 };
 
+export const getFilterMessages = () => async (dispatch, getState) => {
+  const { messageFilters, shh } = getState().whisper;
+  const messages = await shh.getFilterMessages(messageFilters[0])
+  messages.map(msg => {
+    console.log("GETFILTERMESSAGES", util.toAscii(msg.payload))
+    const payload = JSON.parse(util.toAscii(msg.payload));
+    dispatch(receivedMessageAction(payload));
+  });
+
+}
+
 const sendMessageAction = payload => ({
   type: SEND_WHISPER_MESSAGE,
   payload,
 });
+
 
 const receivedMessageAction = payload => ({
   type: RECEIVED_MESSAGE,
@@ -115,6 +143,11 @@ const receivedMessageAction = payload => ({
 const createListenerAction = subscription => ({
   type: CREATE_LISTENER,
   payload: subscription,
+});
+
+const createMessageFilterAction = messageFilter => ({
+  type: CREATE_MESSAGE_FILTER,
+  payload: messageFilter,
 });
 
 const setWhisperProviderAction = wsProvider => ({
