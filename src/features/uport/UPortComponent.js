@@ -11,3 +11,19 @@ uport.requestDisclosure({
 uport.onResponse('disclosureReq').then(payload => {
   const address = payload.address;
 });
+
+class UPortLogin extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <button type={'button'} className={'app-button primary'}>
+        Login with uPort
+      </button>
+    );
+  }
+}
+
+export default UPortLogin;

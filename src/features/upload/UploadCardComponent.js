@@ -6,6 +6,7 @@ import util from 'ethjs-util';
 
 // SubComponents
 import UploadCardHeader from './UploadCardHeaderContainer';
+import UPortLogin from '../uport/UPortComponent';
 
 class UploadCard extends Component {
   constructor(props) {
@@ -129,6 +130,7 @@ class UploadCard extends Component {
                 </button>
               </div>
             </form>
+            <UPortLogin />
           </div>
         </div>
       </div>
