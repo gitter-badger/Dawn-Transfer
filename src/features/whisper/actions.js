@@ -180,8 +180,10 @@ export const getSymKeyIdFromPassword = password => async (
   const { shh } = getState().whisper;
   try {
     const symKeyId = await shh.generateSymKeyFromPassword(password);
-    console.log('SymKeyId:', symKeyId, 'password:', password);
-    alert(`SymKeyId: ${symKeyId} ; Password: ${password}`);
+    const symKey = await shh.getSymKey(symKeyId);
+    console.log('SymKeyId:', symKeyId, 'password:', password, "symKey:", symKey);
+    alert(`SymKeyId: ${symKeyId} ; Password: ${password} ; SymKey: ${symKey}`);
+
   } catch (err) {
     console.log(err);
   }
