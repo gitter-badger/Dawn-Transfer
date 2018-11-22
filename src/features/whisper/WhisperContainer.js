@@ -1,9 +1,16 @@
 // redux
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getWhisper, sendMessage, createListener, setWhisper, getFilterMessages, requestHistoricMessages} from './actions';
+import {
+  getWhisper,
+  sendMessage,
+  createListener,
+  setWhisper,
+  getFilterMessages,
+  requestHistoricMessages,
+  getSymKeyIdFromPassword,
+} from './actions';
 import { newStatus, connectStatus } from './actions_status';
-
 
 // Core Component
 import Whisper from './WhisperComponent';
@@ -22,7 +29,8 @@ const mapDispatchToProps = dispatch =>
       getFilterMessages,
       newStatus,
       connectStatus,
-      requestHistoricMessages
+      requestHistoricMessages,
+      getSymKeyIdFromPassword
     },
     dispatch,
   );

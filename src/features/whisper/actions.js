@@ -17,7 +17,7 @@ import {
   getWhisperInfo,
   shhext_post,
   shhext_getNewFilterMessages,
-  shhext_requestMessages
+  shhext_requestMessages,
 } from '../../util/whispercalls';
 
 export const setWhisper = (wsProvider, httpProvider) => async dispatch => {
@@ -84,7 +84,7 @@ export const sendMessage = (opts, payload, shh) => async dispatch => {
   // shhext_post
   try {
     const response = await shhext_post(opts);
-    const hash = JSON.parse(response).result
+    const hash = JSON.parse(response).result;
     console.log(`Message with hash ${hash} was successfuly sent`);
     console.log('PAYLOAD:', payload);
     dispatch(sendMessageAction(payload));
@@ -145,8 +145,8 @@ export const getFilterMessages = () => async (dispatch, getState) => {
 
   try {
     const response = await shhext_getNewFilterMessages(messageFilters[0]);
-    const messages = JSON.parse(response).result
-    console.log("MESSAGES", messages)
+    const messages = JSON.parse(response).result;
+    console.log('MESSAGES', messages);
     messages.map(msg => {
       console.log('GETFILTERMESSAGES', util.toAscii(msg.payload));
       const payload = JSON.parse(util.toAscii(msg.payload));
@@ -157,11 +157,10 @@ export const getFilterMessages = () => async (dispatch, getState) => {
   }
 };
 
-
-export const requestHistoricMessages = (opts) => async (dispatch, getState) => {
+export const requestHistoricMessages = opts => async (dispatch, getState) => {
   try {
     const response = await shhext_requestMessages(opts);
-    console.log("requestHistoricMessages response", response)
+    console.log('requestHistoricMessages response', response);
     // const messages = JSON.parse(response).result
     // console.log("MESSAGES", messages)
     // messages.map(msg => {
@@ -171,6 +170,20 @@ export const requestHistoricMessages = (opts) => async (dispatch, getState) => {
     // });
   } catch (err) {
     console.log('Error in action getFilterMessages', err);
+  }
+};
+
+export const getSymKeyIdFromPassword = password => async (
+  dispatch,
+  getState,
+) => {
+  const { shh } = getState().whisper;
+  try {
+    const symKeyId = await shh.generateSymKeyFromPassword(password);
+    console.log('SymKeyId:', symKeyId, 'password:', password);
+    alert(`SymKeyId: ${symKeyId} ; Password: ${password}`);
+  } catch (err) {
+    console.log(err);
   }
 };
 

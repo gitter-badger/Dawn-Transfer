@@ -24,6 +24,7 @@ class Whisper extends React.Component {
     this.onChange = this.onChange.bind(this);
     this.doGetFilterMessages = this.doGetFilterMessages.bind(this);
     this.doRequestHistoricMessages = this.doRequestHistoricMessages.bind(this);
+    this.doGetSymKeyIdFromPassword = this.doGetSymKeyIdFromPassword.bind(this);
   }
 
   onChange(e) {
@@ -76,6 +77,11 @@ class Whisper extends React.Component {
     await this.createListener([topic1]);
   }
 
+  async doGetSymKeyIdFromPassword(e) {
+    e.preventDefault();
+    await this.props.getSymKeyIdFromPassword('password');
+  }
+
   // Wrapper function for creating a new listener
   createListener = async topics => {
     // Convert ascii topics to hex
@@ -95,8 +101,10 @@ class Whisper extends React.Component {
     <div>
       <button onClick={this.doGetFilterMessages}> getFilterMessages </button>
       <button onClick={this.doRequestHistoricMessages}>
-        {' '}
-        requestHistoricMessages{' '}
+        requestHistoricMessages
+        </button>
+      <button onClick={this.doGetSymKeyIdFromPassword}>
+        doGetSymKeyIdFromPassword
       </button>
     </div>
   );
