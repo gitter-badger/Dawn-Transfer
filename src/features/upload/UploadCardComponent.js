@@ -61,7 +61,6 @@ class UploadCard extends Component {
       powTarget: 0.5,
     };
 
-    console.log('PAYLOAD PRE', payload);
     this.props.sendMessage(opts, payload, this.props.whisper.shh);
   };
 

@@ -9,11 +9,16 @@ import {
   RECEIVED_MESSAGE,
   SET_WHISPER_PROVIDER,
   SET_WHISPER,
-  CREATE_MESSAGE_FILTER
+  CREATE_MESSAGE_FILTER,
 } from '../../state/types';
 
-// Whisper calls 
-import { getWhisperInfo, shhext_post } from "../../util/whispercalls"
+// Whisper calls
+import {
+  getWhisperInfo,
+  shhext_post,
+  shhext_getNewFilterMessages,
+  shhext_requestMessages
+} from '../../util/whispercalls';
 
 export const setWhisper = (wsProvider, httpProvider) => async dispatch => {
   let web3, provider;
@@ -27,8 +32,7 @@ export const setWhisper = (wsProvider, httpProvider) => async dispatch => {
   dispatch(setWhisperProviderAction(provider));
   const shh = web3.shh;
   dispatch(setWhisperAction(shh));
-  console.log("Set `shh` with provider:",provider)
-
+  console.log('Set `shh` with provider:', provider);
 };
 
 export const getWhisper = shh => async dispatch => {
@@ -55,17 +59,17 @@ export const getWhisper = shh => async dispatch => {
       keyPairId,
       symKeyId,
       publicKey,
-      privateKey
+      privateKey,
     };
     console.log('New Whisper Peer Identity!');
     return dispatch(getWhisperAction(whisper));
   } catch (err) {
-    console.log("Couldn't Get Whisper Details: ", err.message)
+    console.log("Couldn't Get Whisper Details: ", err.message);
     return new Error(err.message);
   }
 };
 
-export const sendMessage = (opts, payload, shh) => dispatch => {
+export const sendMessage = (opts, payload, shh) => async dispatch => {
   console.log('PAYLOAD 0:', payload);
 
   // shh
@@ -77,12 +81,20 @@ export const sendMessage = (opts, payload, shh) => dispatch => {
   //   })
   //   .catch(err => console.log('Error: ', err));
 
-  shhext_post(opts);
+  // shhext_post
+  try {
+    const response = await shhext_post(opts);
+    const hash = JSON.parse(response).result
+    console.log(`Message with hash ${hash} was successfuly sent`);
+    console.log('PAYLOAD:', payload);
+    dispatch(sendMessageAction(payload));
+  } catch (err) {
+    console.log('Error in action sendMessage: ', err);
+  }
 };
 
 export const createListener = (opts, shh) => async dispatch => {
-
-  console.log("Creating Listener with opts:", opts)
+  console.log('Creating Listener with opts:', opts);
 
   // Generate new identity
   const { topics, privateKeyID } = opts;
@@ -100,15 +112,13 @@ export const createListener = (opts, shh) => async dispatch => {
       // this.notify(`Hash Received! Hash: ${payload.hash}`, 'info');
     });
 
-
   const newMessageFilter = await shh.newMessageFilter({
     privateKeyID,
-    topics
-  })
+    topics,
+  });
 
-  console.log("SUBSCRIPTION", subscription);
-  console.log("MESSAGE FILTER", newMessageFilter);
-
+  console.log('SUBSCRIPTION', subscription);
+  console.log('MESSAGE FILTER', newMessageFilter);
 
   dispatch(createListenerAction(subscription));
   dispatch(createMessageFilterAction(newMessageFilter));
@@ -122,20 +132,52 @@ export const createListener = (opts, shh) => async dispatch => {
 
 export const getFilterMessages = () => async (dispatch, getState) => {
   const { messageFilters, shh } = getState().whisper;
-  const messages = await shh.getFilterMessages(messageFilters[0])
-  messages.map(msg => {
-    console.log("GETFILTERMESSAGES", util.toAscii(msg.payload))
-    const payload = JSON.parse(util.toAscii(msg.payload));
-    dispatch(receivedMessageAction(payload));
-  });
 
-}
+  // web3.getFilterMessages
+  // const messages = await shh.getFilterMessages(messageFilters[0]);
+  // messages.map(msg => {
+  //   console.log('GETFILTERMESSAGES', util.toAscii(msg.payload));
+  //   const payload = JSON.parse(util.toAscii(msg.payload));
+  //   dispatch(receivedMessageAction(payload));
+  // });
+
+  // shhext_getNewFilterMessages
+
+  try {
+    const response = await shhext_getNewFilterMessages(messageFilters[0]);
+    const messages = JSON.parse(response).result
+    console.log("MESSAGES", messages)
+    messages.map(msg => {
+      console.log('GETFILTERMESSAGES', util.toAscii(msg.payload));
+      const payload = JSON.parse(util.toAscii(msg.payload));
+      dispatch(receivedMessageAction(payload));
+    });
+  } catch (err) {
+    console.log('Error in action getFilterMessages', err);
+  }
+};
+
+
+export const requestHistoricMessages = (opts) => async (dispatch, getState) => {
+  try {
+    const response = await shhext_requestMessages(opts);
+    console.log("requestHistoricMessages response", response)
+    // const messages = JSON.parse(response).result
+    // console.log("MESSAGES", messages)
+    // messages.map(msg => {
+    //   console.log('GETFILTERMESSAGES', util.toAscii(msg.payload));
+    //   const payload = JSON.parse(util.toAscii(msg.payload));
+    //   dispatch(receivedMessageAction(payload));
+    // });
+  } catch (err) {
+    console.log('Error in action getFilterMessages', err);
+  }
+};
 
 const sendMessageAction = payload => ({
   type: SEND_WHISPER_MESSAGE,
   payload,
 });
-
 
 const receivedMessageAction = payload => ({
   type: RECEIVED_MESSAGE,

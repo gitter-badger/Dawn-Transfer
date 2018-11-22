@@ -12,6 +12,7 @@ import {
 const wsProvider = 'ws://50.2.39.116:8546';
 const httpProvider = 'http://104.197.46.74:8545';
 const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+const enode = '';
 
 const topic1 = '1234';
 const topic2 = '5678';
@@ -22,6 +23,7 @@ class Whisper extends React.Component {
     this.onChange = this.onChange.bind(this);
     this.onChange = this.onChange.bind(this);
     this.doGetFilterMessages = this.doGetFilterMessages.bind(this);
+    this.doRequestHistoricMessages = this.doRequestHistoricMessages.bind(this);
   }
 
   onChange(e) {
@@ -34,15 +36,28 @@ class Whisper extends React.Component {
   //   await this.createListener(topics);
   // }
 
-  async doGetFilterMessages() {
-    await this.props.getFilterMessages()
+  async doGetFilterMessages(e) {
+    e.preventDefault()
+    await this.props.getFilterMessages();
+  }
+
+  async doRequestHistoricMessages(e) {
+    e.preventDefault()
+    const opts = {
+      mailServerPeer: enode,
+      topic: topic1,
+      symKeyId: this.props.whisper.details.symKeyId
+
+    }
+    await this.props.requestHistoricMessages(opts);
   }
 
   async componentDidMount() {
-
     // callWhisper();
     // getWhisperInfo();
     // shhextConfirmMessagesProcessed();
+    await this.props.newStatus();
+    await this.props.connectStatus(null, proxyUrl + httpProvider);
 
     // Set Whisper using default provider
     await this.props.setWhisper(null, proxyUrl + httpProvider);
@@ -77,9 +92,14 @@ class Whisper extends React.Component {
   };
 
   render = () => (
-    <div> 
+    <div>
       <button onClick={this.doGetFilterMessages}> getFilterMessages </button>
-    </div>);
+      <button onClick={this.doRequestHistoricMessages}>
+        {' '}
+        requestHistoricMessages{' '}
+      </button>
+    </div>
+  );
 }
 
 Whisper.propTypes = {
