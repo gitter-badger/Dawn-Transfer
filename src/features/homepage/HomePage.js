@@ -10,7 +10,7 @@ import Navbar from '../../components/navbar/Navbar';
 // Whisper
 import Whisper from '../whisper';
 
-class HomepageContainer extends React.Component {
+class HomePage extends React.Component {
   render() {
     return (
       <div className="main-container">
@@ -37,4 +37,4 @@ class HomepageContainer extends React.Component {
   }
 }
 
-export default HomepageContainer;
+export default HomePage;

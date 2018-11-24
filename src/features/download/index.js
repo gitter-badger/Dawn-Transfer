@@ -1,2 +1,2 @@
-import DownloadContainer from './DownloadContainer';
-export default DownloadContainer;
+import DownloadTableContainer from './DownloadTableContainer';
+export default DownloadTableContainer;
