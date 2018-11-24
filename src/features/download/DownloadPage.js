@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
-import isEmpty from "../../util/is-empty"
-import isIpfs from "is-ipfs"
+import isEmpty from '../../util/is-empty';
+import isIpfs from 'is-ipfs';
 
 import Header from '../../components/header/Header';
 
@@ -10,11 +10,13 @@ class DownloadPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      hash: "",
-      dek: "",
-      path: "",
-      msg: ""
-    }
+      hash: '',
+      iv: '',
+      path: '',
+      msg: '',
+    };
+    this.submitDownloadForm = this.submitDownloadForm.bind(this);
+    this._onTextChange = this._onTextChange.bind(this);
   }
 
   async componentDidMount() {
@@ -31,27 +33,55 @@ class DownloadPage extends React.Component {
       path,
       msg,
     };
-    console.log("QUERY", query);
-
-    if (this._validateImmediateDownloadQuery(query)) {
-      console.log("Downloading query")
-      await this.props.downloadAndDecryptFile(hash, path)
-    } else {
-      console.log("Cannot immediately dl query")
-      this.setState({
-        hash, iv, path, msg
-      })
-    }
+    console.log('QUERY', query);
+    await this._makeDownloadQuery(query);
   }
 
   _validateImmediateDownloadQuery(query) {
     const { hash, iv, path } = query;
     // If we can grab the valid hash and the decryption key and the filename(path)
-    if (!isEmpty(hash) && isIpfs.multihash(hash) && !isEmpty(iv) && !isEmpty(path)) {
-      return true
+    if (
+      !isEmpty(hash) &&
+      isIpfs.multihash(hash) &&
+      !isEmpty(iv) &&
+      !isEmpty(path)
+    ) {
+      return true;
     }
     return false;
+  }
 
+  submitDownloadForm(e) {
+    e.preventDefault();
+    const { hash, iv, path } = this.state;
+    const query = {
+      hash,
+      iv,
+      path,
+    };
+    this._makeDownloadQuery(query);
+  }
+
+  async _makeDownloadQuery(query) {
+
+    const { hash, iv, path, msg } = query; 
+
+    if (this._validateImmediateDownloadQuery(query)) {
+      console.log('Downloading query');
+      await this.props.downloadAndDecryptFile(hash, path);
+    } else {
+      alert('Cannot Download query');
+      this.setState({
+        hash,
+        iv,
+        path,
+        msg,
+      });
+    }
+  }
+
+  _onTextChange(e) {
+    this.setState({ [e.target.name]: e.target.value });
   }
 
   render() {
@@ -66,10 +96,44 @@ class DownloadPage extends React.Component {
             {/* Left Half of Page */}
             <div className="container element ">
               <h1>download</h1>
-              <p>Hash: {this.state.hash} </p>
-              <p>DEK: {this.state.dek} </p>
-              <p>Path: {this.state.path} </p>
-              <p>Message: {this.state.msg} </p>
+              <form onSubmit={this.submitDownloadForm}>
+                <div className="app-form-item">
+                  <label htmlFor={'hash'}>Hash(encrypted)</label>
+                  <input
+                    onChange={this._onTextChange}
+                    value={this.state.hash}
+                    name={'hash'}
+                    placeholder={'HASH'}
+                    type={'text'}
+                    id={'hash'}
+                  />
+                </div>
+                <div className={'app-form-item'}>
+                  <label htmlFor={'iv'}>Decryption Key(iv)</label>
+                  <textarea
+                    value={this.state.iv}
+                    onChange={this._onTextChange}
+                    placeholder={'Decryption Key (IV)'}
+                    id={'iv'}
+                    name={'iv'}
+                  />
+                </div>
+                                <div className={'app-form-item'}>
+                  <label htmlFor={'path'}>File Name (path):</label>
+                  <textarea
+                    value={this.state.path}
+                    onChange={this._onTextChange}
+                    placeholder={'File Name (path)'}
+                    id={'path'}
+                    name={'path'}
+                  />
+                </div>
+                <div className={'app-form-actions'}>
+                  <button type={'submit'} className={'app-button primary'}>
+                    Send to Peer
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
