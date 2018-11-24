@@ -24,7 +24,7 @@ class Whisper extends React.Component {
     this.onChange = this.onChange.bind(this);
     this.doGetFilterMessages = this.doGetFilterMessages.bind(this);
     this.doRequestHistoricMessages = this.doRequestHistoricMessages.bind(this);
-    this.doGetSymKeyIdFromPassword = this.doGetSymKeyIdFromPassword.bind(this);
+    this.doGetWhisperIdentityFromPassword = this.doGetWhisperIdentityFromPassword.bind(this);
   }
 
   onChange(e) {
@@ -77,9 +77,11 @@ class Whisper extends React.Component {
     await this.createListener([topic1]);
   }
 
-  async doGetSymKeyIdFromPassword(e) {
+  async doGetWhisperIdentityFromPassword(e) {
     e.preventDefault();
-    await this.props.getSymKeyIdFromPassword('password');
+    await this.props.getWhisperIdentityFromPassword('0x8bda3abeb454847b515fa9b404cede50b1cc63cfdeddd4999d074284b4c21e15');
+    // TODO: Clear
+    await this.createListener([topic1])
   }
 
   // Wrapper function for creating a new listener
@@ -90,11 +92,11 @@ class Whisper extends React.Component {
     // Create opts for subscribe function
     const opts = {
       topics: topicsHex,
-      privateKeyID: this.props.whisper.details.keyPairId,
+      keyPairID: this.props.whisper.details.keyPairId,
     };
 
     // call shh.subscribe
-    await this.props.createListener(opts, this.props.whisper.shh);
+    await this.props.createListener(opts);
   };
 
   render = () => (
@@ -103,8 +105,8 @@ class Whisper extends React.Component {
       <button onClick={this.doRequestHistoricMessages}>
         requestHistoricMessages
         </button>
-      <button onClick={this.doGetSymKeyIdFromPassword}>
-        doGetSymKeyIdFromPassword
+      <button onClick={this.doGetWhisperIdentityFromPassword}>
+        doGetWhisperIdentityFromPassword
       </button>
     </div>
   );

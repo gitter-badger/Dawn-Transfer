@@ -10,6 +10,7 @@ import {
   SET_WHISPER_PROVIDER,
   SET_WHISPER,
   CREATE_MESSAGE_FILTER,
+  UPDATE_WHISPER_IDENTITY,
 } from '../../state/types';
 
 // Whisper calls
@@ -19,6 +20,9 @@ import {
   shhext_getNewFilterMessages,
   shhext_requestMessages,
 } from '../../util/whispercalls';
+
+
+const test = () => async dispatch => alert("test")
 
 export const setWhisper = (wsProvider, httpProvider) => async dispatch => {
   let web3, provider;
@@ -93,16 +97,18 @@ export const sendMessage = (opts, payload, shh) => async dispatch => {
   }
 };
 
-export const createListener = (opts, shh) => async dispatch => {
+export const createListener = opts => async (dispatch, getState) => {
+  const { shh } = getState().whisper;
+
   console.log('Creating Listener with opts:', opts);
 
   // Generate new identity
-  const { topics, privateKeyID } = opts;
+  const { topics, keyPairID } = opts;
 
   // will receive also its own message send, below
   const subscription = await shh
     .subscribe('messages', {
-      privateKeyID,
+      privateKeyID: keyPairID,
       topics,
     })
     .on('data', data => {
@@ -113,7 +119,7 @@ export const createListener = (opts, shh) => async dispatch => {
     });
 
   const newMessageFilter = await shh.newMessageFilter({
-    privateKeyID,
+    privateKeyID: keyPairID,
     topics,
   });
 
@@ -144,13 +150,15 @@ export const getFilterMessages = () => async (dispatch, getState) => {
   // shhext_getNewFilterMessages
 
   try {
-    const response = await shhext_getNewFilterMessages(messageFilters[0]);
-    const messages = JSON.parse(response).result;
-    console.log('MESSAGES', messages);
-    messages.map(msg => {
-      console.log('GETFILTERMESSAGES', util.toAscii(msg.payload));
-      const payload = JSON.parse(util.toAscii(msg.payload));
-      dispatch(receivedMessageAction(payload));
+    messageFilters.forEach(async filter => {
+      const response = await shhext_getNewFilterMessages(filter);
+      const messages = JSON.parse(response).result;
+      console.log('MESSAGES', messages);
+      messages.map(msg => {
+        console.log('GETFILTERMESSAGES', util.toAscii(msg.payload));
+        const payload = JSON.parse(util.toAscii(msg.payload));
+        dispatch(receivedMessageAction(payload));
+      });
     });
   } catch (err) {
     console.log('Error in action getFilterMessages', err);
@@ -173,17 +181,55 @@ export const requestHistoricMessages = opts => async (dispatch, getState) => {
   }
 };
 
-export const getSymKeyIdFromPassword = password => async (
+export const getWhisperIdentityFromPassword = password => async (
   dispatch,
   getState,
 ) => {
   const { shh } = getState().whisper;
   try {
     const symKeyId = await shh.generateSymKeyFromPassword(password);
-    const symKey = await shh.getSymKey(symKeyId);
-    console.log('SymKeyId:', symKeyId, 'password:', password, "symKey:", symKey);
-    alert(`SymKeyId: ${symKeyId} ; Password: ${password} ; SymKey: ${symKey}`);
+    const hasSymKey = await shh.hasSymKey(symKeyId);
+    let symKey, pubKey, privateKey;
+    if (hasSymKey) {
+      console.log('Has SymKey');
+      symKey = await shh.getSymKey(symKeyId);
+    }
+    const keyPairId = await shh.addPrivateKey(password);
+    pubKey = await shh.getPublicKey(keyPairId);
+    privateKey = await shh.getPrivateKey(keyPairId);
 
+    console.log(
+      'SymKeyId:',
+      symKeyId,
+      '\npassword:',
+      password,
+      '\nsymKey:',
+      symKey,
+      '\nkeyPairId',
+      keyPairId,
+      '\npubKey:',
+      pubKey,
+      '\nprivateKey',
+      privateKey,
+    );
+    // alert(`
+    // Password: ${password} ;
+    // SymKeyId: ${symKeyId} ;
+    // SymKey: ${symKey} ;
+    // keyPairId: ${keyPairId} ;
+    // PubKey: ${pubKey} ;
+    // PrivKey: ${privateKey} ;
+    // `);
+
+    const newIdentity = {
+      symKeyId,
+      symKey,
+      keyPairId,
+      pubKey,
+      privateKey,
+    };
+
+    dispatch(updateWhisperIdentityAction(newIdentity));
   } catch (err) {
     console.log(err);
   }
@@ -222,4 +268,9 @@ const setWhisperAction = shh => ({
 const getWhisperAction = whisper => ({
   type: GET_WHISPER,
   payload: whisper,
+});
+
+const updateWhisperIdentityAction = details => ({
+  type: UPDATE_WHISPER_IDENTITY,
+  payload: details,
 });

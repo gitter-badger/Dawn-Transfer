@@ -8,7 +8,7 @@ import {
   setWhisper,
   getFilterMessages,
   requestHistoricMessages,
-  getSymKeyIdFromPassword,
+  getWhisperIdentityFromPassword,
 } from './actions';
 import { newStatus, connectStatus } from './actions_status';
 
@@ -30,7 +30,7 @@ const mapDispatchToProps = dispatch =>
       newStatus,
       connectStatus,
       requestHistoricMessages,
-      getSymKeyIdFromPassword
+      getWhisperIdentityFromPassword
     },
     dispatch,
   );
