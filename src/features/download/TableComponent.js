@@ -14,9 +14,7 @@ class Table extends React.Component {
   // Click Handler for Download button for every payload received
   _handleDownloadClick = async msg => {
     const { hash, path, iv, note } = msg;
-    const link = `/download?hash=${hash}&iv=${iv}&path=${path}&msg=hello_world`
-    window.open(link, "_blank")
-    // await this.props.downloadAndDecryptFile(hash, path);
+    await this.props.downloadAndDecryptFile(hash, path);
   };
 
   render() {

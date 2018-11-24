@@ -1,7 +1,7 @@
 import {  Route } from 'react-router-dom'
 import React from 'react';
-import HomePage from './HomePage';
+import HomepageContainer from './HomepageContainer';
 
 export default () => (
-    <Route exact path="/" component={HomePage} />
+    <Route exact path="/" component={HomepageContainer} />
 )

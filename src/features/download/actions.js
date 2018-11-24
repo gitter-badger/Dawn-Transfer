@@ -2,8 +2,6 @@ import { IPFS_GET_FILE, DECRYPT_FILE, DOWNLOAD_FILE } from '../../state/types';
 
 import node from '../../util/ipfs';
 import { decrypt } from '../../util/encrypt';
-import isEmpty from '../../util/is-empty';
-
 import fileDownload from 'js-file-download';
 
 //////////////////
@@ -43,17 +41,17 @@ export const decryptFile = async (encryptedBuffer, iv) => {
 };
 
 // Get File form IPFS
-const getFile = hash =>
-  new Promise((resolve, reject) => {
-    node.on('ready', async () => {
-      const files = await node.files.get(hash);
-      const res = files.map(file => {
-        const { content, name, path } = file;
-        return { content, name, path };
-      });
-      return resolve(res);
-    });
+const getFile = async hash => {
+  console.log('GETTING FILES, HASH:', hash);
+  const files = await node.files.get(hash);
+
+  const res = files.map(file => {
+    const { content, name, path } = file;
+    return { content, name, path };
   });
+
+  return res;
+};
 
 // Encrypt File
 const downloadFile = (decryptedBuffer, fileName) => {
