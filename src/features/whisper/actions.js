@@ -21,8 +21,10 @@ import {
   shhext_requestMessages,
 } from '../../util/whispercalls';
 
+const enode =
+  'enode://36a800cb285d1b98c53c350e0560382662db31590640e17b493ad489409454d3c175bab112724ab28b4efc25921f86e45dcfb8eb84adc8cfdec912ebf6e8161c@104.197.46.74:30303';
 
-const test = () => async dispatch => alert("test")
+const test = () => async dispatch => alert('test');
 
 export const setWhisper = (wsProvider, httpProvider) => async dispatch => {
   let web3, provider;
@@ -110,6 +112,7 @@ export const createListener = opts => async (dispatch, getState) => {
     .subscribe('messages', {
       privateKeyID: keyPairID,
       topics,
+      allowP2P: true,
     })
     .on('data', data => {
       const payload = JSON.parse(util.toAscii(data.payload));
@@ -121,6 +124,7 @@ export const createListener = opts => async (dispatch, getState) => {
   const newMessageFilter = await shh.newMessageFilter({
     privateKeyID: keyPairID,
     topics,
+    allowP2P: true,
   });
 
   console.log('SUBSCRIPTION', subscription);
@@ -134,6 +138,21 @@ export const createListener = opts => async (dispatch, getState) => {
     'Created Listener! Listening for topics:',
     opts.topics.map(t => util.toAscii(t)),
   );
+};
+
+export const markTrustedEnode = () => async (dispatch, getState) => {
+  const { shh } = getState().whisper;
+  try {
+    console.log(enode);
+    const res = await shh.markTrustedPeer(enode);
+    if (res) {
+      console.log('Trusted Enode!');
+    } else {
+      console.log('Failed to mark Trusted enode: ', enode);
+    }
+  } catch (err) {
+    console.log('Error in action markTrustedEnode: ', err);
+  }
 };
 
 export const getFilterMessages = () => async (dispatch, getState) => {

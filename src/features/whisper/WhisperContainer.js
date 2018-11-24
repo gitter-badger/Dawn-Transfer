@@ -9,6 +9,7 @@ import {
   getFilterMessages,
   requestHistoricMessages,
   getWhisperIdentityFromPassword,
+  markTrustedEnode
 } from './actions';
 import { newStatus, connectStatus } from './actions_status';
 
@@ -30,7 +31,8 @@ const mapDispatchToProps = dispatch =>
       newStatus,
       connectStatus,
       requestHistoricMessages,
-      getWhisperIdentityFromPassword
+      getWhisperIdentityFromPassword,
+      markTrustedEnode
     },
     dispatch,
   );
