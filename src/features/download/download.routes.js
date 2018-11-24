@@ -1,7 +1,8 @@
 import {  Route } from 'react-router-dom'
 import React from 'react';
-import HomePage from './HomePage';
+
+import DownloadPage from './DownloadPage';
 
 export default () => (
-    <Route exact path="/" component={HomePage} />
+    <Route path ="*" component={DownloadPage} />
 )
