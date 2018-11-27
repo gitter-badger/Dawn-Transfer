@@ -83,7 +83,7 @@ class Whisper extends React.Component {
 
   async doGetWhisperIdentityFromPassword(e) {
     e.preventDefault();
-    await this.props.getWhisperIdentityFromPassword('0x8bda3abeb454847b515fa9b404cede50b1cc63cfdeddd4999d074284b4c21e15');
+    await this.props.getWhisperIdentityFromPassword('0x1b11e9fcceaa0726c943baa6a07d7cb0b4c3af00636081baed1453d2570061be');
     // TODO: Clear
     await this.createListener([topic1])
   }

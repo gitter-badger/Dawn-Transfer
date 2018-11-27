@@ -16,9 +16,12 @@ export const downloadAndDecryptFile = (
   key = 'SECRET_KEY',
   iv = '9De0DgMTCDFGNokdEEial',
 ) => async dispatch => {
+  console.log("Downloading")
   try {
-    // console.log('HASH:', hash);
+    console.log('HASH:', hash);
     const res = await getFile(hash);
+    console.log("Got file")
+
     const file = res[0].content;
     dispatch(ipfsGetFileAction(file));
 

@@ -1,4 +1,3 @@
-import axios from 'axios';
 import Web3 from 'web3';
 import util from 'ethjs-util';
 import isEmpty from '../../util/is-empty';

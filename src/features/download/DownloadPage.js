@@ -51,15 +51,16 @@ class DownloadPage extends React.Component {
     return false;
   }
 
-  submitDownloadForm(e) {
+  async submitDownloadForm(e) {
     e.preventDefault();
+    alert("boobs")
     const { hash, iv, path } = this.state;
     const query = {
       hash,
       iv,
       path,
     };
-    this._makeDownloadQuery(query);
+    await this._makeDownloadQuery(query);
   }
 
   async _makeDownloadQuery(query) {

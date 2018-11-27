@@ -5,7 +5,6 @@ import node from '../../util/ipfs';
 
 // Decryption
 import { decrypt } from '../../util/encrypt';
-import axios from 'axios';
 
 // File Download
 import fileDownload from 'js-file-download';
