@@ -25,3 +25,8 @@ export const ENCRYPT_FILE = 'ENCRYPT_FILE';
 
 // Decryption
 export const DECRYPT_FILE = 'DECRYPT_FILE';
+
+
+// Metamask
+export const METAMASK_CONNECT = 'METAMASK_CONNECT';
+export const METAMASK_LOGIN = 'METAMASK_LOGIN';

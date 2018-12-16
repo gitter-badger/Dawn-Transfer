@@ -78,7 +78,7 @@ class Whisper extends React.Component {
     await this.props.markTrustedEnode()
 
     // Create default listener
-    await this.createListener([topic1]);
+    await this.props.createListener();
   }
 
   async doGetWhisperIdentityFromPassword(e) {
@@ -87,23 +87,8 @@ class Whisper extends React.Component {
       '0x6fd68d061f8af918c9c7987e0ca82deed5e523316553532e52c79dcdee867269',
     );
     // TODO: Clear
-    await this.createListener([topic1])
+    await this.props.createListener()
   }
-
-  // Wrapper function for creating a new listener
-  createListener = async topics => {
-    // Convert ascii topics to hex
-    const topicsHex = topics.map(t => util.fromAscii(t));
-    console.log('topics hex:', topicsHex);
-    // Create opts for subscribe function
-    const opts = {
-      topics: topicsHex,
-      keyPairID: this.props.whisper.details.keyPairId,
-    };
-
-    // call shh.subscribe
-    await this.props.createListener(opts);
-  };
 
   render = () => (
     <div>

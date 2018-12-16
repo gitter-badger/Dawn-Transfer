@@ -21,10 +21,15 @@ import {
   shhext_requestMessages,
 } from '../../util/whispercalls';
 
+// 
+
 const enode =
   'enode://36a800cb285d1b98c53c350e0560382662db31590640e17b493ad489409454d3c175bab112724ab28b4efc25921f86e45dcfb8eb84adc8cfdec912ebf6e8161c@104.197.46.74:30303';
 
 const test = () => async dispatch => alert('test');
+
+const topic1 = '1234';
+const topic2 = '5678';
 
 export const setWhisper = (wsProvider, httpProvider) => async dispatch => {
   let web3, provider;
@@ -78,14 +83,16 @@ export const getWhisper = shh => async dispatch => {
 export const sendMessage = (opts, payload, shh) => async dispatch => {
   console.log('PAYLOAD 0:', payload);
 
-  // shh
-  //   .post(opts)
-  //   .then(h => {
-  //     console.log(`Message with hash ${h} was successfuly sent`);
-  //     console.log('PAYLOAD:', payload);
-  //     dispatch(sendMessageAction(payload));
-  //   })
-  //   .catch(err => console.log('Error: ', err));
+  /*
+   shh
+    .post(opts)
+    .then(h => {
+      console.log(`Message with hash ${h} was successfuly sent`);
+      console.log('PAYLOAD:', payload);
+      dispatch(sendMessageAction(payload));
+    })
+    .catch(err => console.log('Error: ', err));
+  */
 
   // shhext_post
   try {
@@ -99,13 +106,14 @@ export const sendMessage = (opts, payload, shh) => async dispatch => {
   }
 };
 
-export const createListener = opts => async (dispatch, getState) => {
+export const createListener = () => async (dispatch, getState) => {
   const { shh } = getState().whisper;
-
-  console.log('Creating Listener with opts:', opts);
+  const keyPairID = getState().whisper.details.keyPairId;
 
   // Generate new identity
-  const { topics, keyPairID } = opts;
+  let topics = [topic1];
+
+  topics = topics.map(t => util.fromAscii(t));
 
   // will receive also its own message send, below
   const subscription = await shh
@@ -136,7 +144,7 @@ export const createListener = opts => async (dispatch, getState) => {
   // log
   console.log(
     'Created Listener! Listening for topics:',
-    opts.topics.map(t => util.toAscii(t)),
+    topics.map(t => util.toAscii(t)),
   );
 };
 
@@ -206,20 +214,15 @@ export const getWhisperIdentityFromPassword = password => async (
 ) => {
   const { shh } = getState().whisper;
   try {
-    const symKeyId = await shh.generateSymKeyFromPassword(password);
-    const hasSymKey = await shh.hasSymKey(symKeyId);
-    let symKey, pubKey, privateKey;
-    if (hasSymKey) {
-      console.log('Has SymKey');
-      symKey = await shh.getSymKey(symKeyId);
-    }
-    const keyPairId = await shh.addPrivateKey(password);
+    // const symKeyId = await shh.generateSymKeyFromPassword(password);
+    // const hasSymKey = await shh.hasSymKey(symKeyId);
+    let symKeyId, symKey, pubKey, privateKey, keyPairId;
+
+    keyPairId = await shh.addPrivateKey(password);
     pubKey = await shh.getPublicKey(keyPairId);
     privateKey = await shh.getPrivateKey(keyPairId);
 
     console.log(
-      'SymKeyId:',
-      symKeyId,
       '\npassword:',
       password,
       '\nsymKey:',
@@ -231,17 +234,8 @@ export const getWhisperIdentityFromPassword = password => async (
       '\nprivateKey',
       privateKey,
     );
-    // alert(`
-    // Password: ${password} ;
-    // SymKeyId: ${symKeyId} ;
-    // SymKey: ${symKey} ;
-    // keyPairId: ${keyPairId} ;
-    // PubKey: ${pubKey} ;
-    // PrivKey: ${privateKey} ;
-    // `);
 
     const newIdentity = {
-      symKeyId,
       symKey,
       keyPairId,
       pubKey,
@@ -289,7 +283,7 @@ const getWhisperAction = whisper => ({
   payload: whisper,
 });
 
-const updateWhisperIdentityAction = details => ({
+export const updateWhisperIdentityAction = details => ({
   type: UPDATE_WHISPER_IDENTITY,
   payload: details,
 });

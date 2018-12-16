@@ -6,28 +6,27 @@ import { Web3Provider } from 'react-web3';
 class ConnectMetamask extends React.Component {
 	constructor(props) {
 		super(props);
-		this.onClickLoginButton = this.onClickLoginButton.bind(this);
 		this.onClickSignButton = this.onClickSignButton.bind(this);
 	}
 
-	onClickLoginButton(e) {
-		e.preventDefault();
-		console.log('You clicked the Login Button! LOL!');
-		this.props.connectMetamask();
-	}
-
-	onClickSignButton(e) {
+	async onClickSignButton(e) {
 		e.preventDefault();
 		console.log('You clicked the Sign Button! LOL!');
-		this.props.signMetamaskLogin();
+		try {
+			await this.props.signMetamaskLogin();
+			await this.props.createListener();
+		} catch (err) {
+			alert('err.message');
+		}
 	}
 
 	render() {
 		return (
 			<div className="flex-vertical">
 				<h3>Login with Metamask</h3>
-				<button onClick={this.onClickLoginButton}>Connect</button>
-				<button onClick={this.onClickSignButton}>Sign</button>
+				<button onClick={this.onClickSignButton}>
+					Login With Metamask
+				</button>
 			</div>
 		);
 	}

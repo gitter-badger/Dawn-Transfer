@@ -1,4 +1,4 @@
-import { IPFS_GET_FILE, DECRYPT_FILE, DOWNLOAD_FILE } from '../../state/types';
+import { METAMASK_CONNECT, METAMASK_LOGIN } from '../../state/types';
 
 import node from '../../util/ipfs';
 import { decrypt } from '../../util/encrypt';
@@ -10,22 +10,13 @@ import store from '../../state/store';
 // Web3
 import Web3 from 'web3';
 
-//////////////////
-// API Function calls
+// Whisper functions
+import { updateWhisperIdentityAction } from '../whisper/actions';
 
-// Tries downloading and Decrypting the file given payload
-export const connectMetamask = () => async dispatch => {
-	if (typeof window.ethereum !== 'undefined') {
-		try {
-			await window.ethereum.enable();
-			console.log('window.ethereum:', window.ethereum);
-		} catch (err) {
-			console.log(err);
-		}
-	}
-};
-export const signMetamaskLogin = () => async dispatch => {
-	const web3 = store.getState().web3.web3Instance;
+export const signMetamaskLogin = () => async (dispatch, getState) => {
+	const web3 = getState().web3.web3Instance;
+	const { shh } = getState().whisper;
+
 	const msg =
 		'0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0';
 	const accounts = await web3.eth.getAccounts();
@@ -33,48 +24,62 @@ export const signMetamaskLogin = () => async dispatch => {
 
 	if (!from) return connectMetamask();
 
-	web3.currentProvider.sendAsync(
-		{
-			method: 'eth_signTypedData',
-			params: [
-				[
-					{
-						type: 'string',
-						name: 'Message',
-						value: 'DAWN',
-					},
-				],
-				from,
-			],
-			from: from,
-		},
-		function(err, result) {
-			if (err) return console.log(err);
-			console.log(result.result);
-		},
-	);
+	try {
+		const hash = await web3.eth.sign(msg, from);
+
+		alert(`LOGIN SIGNED: ${hash}`);
+
+		const loginHash = hash.slice(0, 66);
+		dispatch(signLoginMetamaskAction(loginHash));
+
+		let pubKey, privateKey, keyPairId;
+
+		keyPairId = await shh.addPrivateKey(loginHash);
+		pubKey = await shh.getPublicKey(keyPairId);
+		privateKey = await shh.getPrivateKey(keyPairId);
+
+		console.log(
+			'loginHash:',
+			loginHash,
+			'\nkeyPairId',
+			keyPairId,
+			'\npubKey:',
+			pubKey,
+			'\nprivateKey',
+			privateKey,
+		);
+
+		const newIdentity = {
+			keyPairId,
+			pubKey,
+			privateKey,
+		};
+
+		dispatch(updateWhisperIdentityAction(newIdentity));
+	} catch (err) {
+		console.log(new Error(err.message));
+	}
 };
 
-// Encrypt File
-const downloadFile = (decryptedBuffer, fileName) => {
-	return fileDownload(decryptedBuffer, fileName);
+// Tries downloading and Decrypting the file given payload
+export const connectMetamask = async () => {
+	if (typeof window.ethereum !== 'undefined') {
+		try {
+			await window.ethereum.enable();
+			store.dispatch(connectMetamaskAction());
+		} catch (err) {
+			console.log(err);
+		}
+	}
 };
 
 //////////////////
 // Action Creators
-const decryptFileAction = (decryptedBuffer, fileName) => ({
-	type: DECRYPT_FILE,
-	payload: {
-		decryptedBuffer,
-		fileName,
-	},
+const connectMetamaskAction = () => ({
+	type: METAMASK_CONNECT,
 });
 
-const ipfsGetFileAction = file => ({
-	type: IPFS_GET_FILE,
-	payload: file,
-});
-
-const downloadFileAction = () => ({
-	type: DOWNLOAD_FILE,
+const signLoginMetamaskAction = loginHash => ({
+	type: METAMASK_LOGIN,
+	payload: loginHash,
 });
