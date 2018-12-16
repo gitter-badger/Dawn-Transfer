@@ -8,7 +8,7 @@ import Header from '../../components/header/Header';
 import Navbar from '../../components/navbar/Navbar';
 
 // Metamask 
-import ConnectMetamask from '../../components/account/ConnectMetamask';
+import ConnectMetamaskContainer from '../../features/account/ConnectMetamaskContainer';
 
 // Whisper
 import Whisper from '../whisper';
@@ -26,7 +26,7 @@ class HomepageContainer extends React.Component {
             {/* Left Half of Page */}
             <div className="container element transfer">
               <UploadCard />
-              <ConnectMetamask />
+              <ConnectMetamaskContainer />
             </div>
 
             {/* Right Half of Page */}
