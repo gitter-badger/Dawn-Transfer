@@ -23,8 +23,12 @@ import {
 
 // 
 
-const enode =
-  'enode://36a800cb285d1b98c53c350e0560382662db31590640e17b493ad489409454d3c175bab112724ab28b4efc25921f86e45dcfb8eb84adc8cfdec912ebf6e8161c@104.197.46.74:30303';
+// const enode =
+//   'enode://36a800cb285d1b98c53c350e0560382662db31590640e17b493ad489409454d3c175bab112724ab28b4efc25921f86e45dcfb8eb84adc8cfdec912ebf6e8161c@104.197.46.74:30303';
+
+let enode = 'enode://015e22f6cd2b44c8a51bd7a23555e271e0759c7d7f52432719665a74966f2da456d28e154e836bee6092b4d686fe67e331655586c57b718be3997c1629d24167@35.226.21.19:30504'
+enode = "enode://015e22f6cd2b44c8a51bd7a23555e271e0759c7d7f52432719665a74966f2da456d28e154e836bee6092b4d686fe67e331655586c57b718be3997c1629d24167@35.226.21.19:30504"
+// enode = "enode://8a64b3c349a2e0ef4a32ea49609ed6eb3364be1110253c20adc17a3cebbc39a219e5d3e13b151c0eee5d8e0f9a8ba2cd026014e67b41a4ab7d1d5dd67ca27427@206.189.243.168:30504"
 
 const test = () => async dispatch => alert('test');
 
@@ -154,7 +158,7 @@ export const markTrustedEnode = () => async (dispatch, getState) => {
     console.log(enode);
     const res = await shh.markTrustedPeer(enode);
     if (res) {
-      console.log('Trusted Enode!');
+      console.log('Trusted Enode! res: ', res);
     } else {
       console.log('Failed to mark Trusted enode: ', enode);
     }
@@ -192,9 +196,23 @@ export const getFilterMessages = () => async (dispatch, getState) => {
   }
 };
 
-export const requestHistoricMessages = opts => async (dispatch, getState) => {
+export const requestHistoricMessages = () => async (dispatch, getState) => {
+
+  const topics = [util.fromAscii(topic1)];
+  const symKeyId = getState().whisper.details.symKeyId;
+  const from = 1544783388;
+  const to = 1544846928;
+
+  const opts = {
+      mailServerPeer: enode,
+      topics: [util.fromAscii(topic1)],
+      symKeyId: getState().whisper.details.symKeyId,
+      from: 1544783388,
+      to: 1544846928
+    };
+
   try {
-    const response = await shhext_requestMessages(opts);
+    const response = await shhext_requestMessages(opts, enode,topics, symKeyId, from, to );
     console.log('requestHistoricMessages response', response);
     // const messages = JSON.parse(response).result
     // console.log("MESSAGES", messages)

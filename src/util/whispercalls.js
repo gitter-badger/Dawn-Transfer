@@ -146,10 +146,10 @@ Sends a request for historic messages to a mail server.
 
 */
 // TODO: what are the params here
-export const shhext_requestMessages = params =>
+export const shhext_requestMessages = (params, enode, topics, symKeyId, from, to) =>
 	new Promise((resolve, reject) => {
 		const dataString = `{"jsonrpc":"2.0","method":"shhext_requestMessages","params":[${JSON.stringify(
-			params,
+			params,	
 		)}],"id":1}`;
 
 		const options = {
